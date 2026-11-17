@@ -1,5 +1,19 @@
 # Troubleshooting
 
+## macOS says the app cannot be opened
+
+Releases are not notarized. Open System Settings > Privacy & Security,
+find the message about OpenGestures near the bottom and choose **Open
+Anyway**. This is needed once per download.
+
+## A trackpad or mouse is not recognized
+
+Run `OpenGestures trace`; it names every device it listens to. Only Apple
+multitouch devices are supported: built-in trackpads, Magic Trackpads and
+Magic Mice (see [compatibility.md](compatibility.md)). If yours is one of
+them and is missing, or listed as the wrong kind, please send a
+[device report](https://github.com/rafaelcaetite/OpenGestures/issues/new?template=device-report.yml).
+
 ## Nothing happens
 
 1. Check the menu bar icon. A warning triangle means Accessibility

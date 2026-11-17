@@ -1,42 +1,92 @@
 # OpenGestures
 
-Custom trackpad and Magic Mouse gestures for macOS, including continuous
-gestures that keep acting while your fingers move: slide four fingers up to
-raise the volume, sideways to move through tabs, and so on.
+[![CI](https://github.com/rafaelcaetite/OpenGestures/actions/workflows/ci.yml/badge.svg)](https://github.com/rafaelcaetite/OpenGestures/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/rafaelcaetite/OpenGestures)](https://github.com/rafaelcaetite/OpenGestures/releases/latest)
+![macOS 13+](https://img.shields.io/badge/macOS-13%2B-blue)
+![Apple silicon and Intel](https://img.shields.io/badge/arch-Apple%20silicon%20%7C%20Intel-lightgrey)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-OpenGestures is a small menu bar app configured with a plain text file. It
-reads raw touch data, recognizes taps, double taps, swipes, slides, hold and
-tap combinations, finger brushes and clicks in the corners or along the
-edges of the trackpad, and turns them into keystrokes, media keys, URLs,
-menu commands, scripts and more.
+Custom trackpad and Magic Mouse gestures for macOS, including continuous
+gestures that keep acting while your fingers move: slide four fingers to set
+the volume as you would drag a slider, or three fingers sideways to pick an
+app in the Command-Tab switcher.
 
 [Português](README.pt-BR.md)
 
-## Highlights
+![The gesture editor](docs/images/editor.png)
 
-- **Continuous gestures.** A slide fires one step for every few millimetres
-  of movement, in either direction, for as long as the fingers stay down.
-  Volume, brightness, zoom, tabs, undo and desktops are built in, and any two
-  actions can be paired.
-- **75 gestures** on the trackpad and the Magic Mouse. See
-  [docs/gestures.md](docs/gestures.md).
-- **Per-application bindings**, bindings that only apply while Fn is held,
-  and multi-step sequences.
-- **Live configuration.** The file is reloaded as soon as you save it. A
-  mistake is reported with its line number, and the last valid configuration
-  stays active.
-- **Light.** A 1.3 MB universal binary with no dependencies. Recognizing a
-  frame takes about a quarter of a microsecond, nothing is allocated while
-  fingers move, and the app uses no CPU while the trackpad is idle: there is
-  no polling anywhere.
+## Contents
 
-## Requirements
+- [Features](#features)
+- [Compatibility](#compatibility)
+- [Installation](#installation)
+- [Getting started](#getting-started)
+- [Configuration](#configuration)
+- [Command line](#command-line)
+- [Performance](#performance)
+- [Documentation](#documentation)
+- [Development](#development)
+- [Uninstalling](#uninstalling)
 
-- macOS 13 Ventura or later, on Apple silicon or Intel
-- A built-in trackpad, Magic Trackpad or Magic Mouse
-- Xcode or the Command Line Tools (`xcode-select --install`) to build
+## Features
+
+- **Continuous gestures.** A slide acts for every millimetre or so of
+  movement, in either direction, for as long as the fingers stay down.
+  Volume and brightness follow the fingers with no lag; zoom, tabs, undo,
+  desktops, tracks and the app switcher are built in, and any two actions
+  can be paired.
+- **75 gestures**: taps and double taps, hold and tap, swipes, slides,
+  finger rolls, and clicks with several fingers, along an edge or in a
+  corner. See [docs/gestures.md](docs/gestures.md).
+- **Actions**: key combinations resolved against your keyboard layout,
+  system actions, media keys, URLs with placeholders, applications, menu
+  commands, scripts, typed text and timed sequences.
+- **A small editor** for the common cases, and a plain text file for
+  everything else: per-application bindings, bindings that apply only while
+  Fn is held, and sequences.
+- **Scrolling.** Separate scroll direction for the trackpad and the mouse,
+  and no stray scrolling while three or four fingers drive a gesture.
+- **English and Portuguese**, following the system language.
+- **Light**: about 8 MB of memory and no CPU while idle. See
+  [Performance](#performance).
+
+## Compatibility
+
+Every Mac that runs **macOS 13 Ventura or later**, Apple silicon or Intel:
+MacBook Pro 2017+, MacBook Air 2018+, MacBook 2017, iMac 2017+, iMac Pro,
+Mac mini 2018+, Mac Studio and Mac Pro 2019+.
+
+| Device | Supported |
+| --- | --- |
+| Built-in trackpad | All trackpad gestures, with haptic feedback |
+| Magic Trackpad 2 and Magic Trackpad (USB-C) | All trackpad gestures, with haptic feedback |
+| Magic Trackpad (first generation) | All trackpad gestures, without haptic feedback |
+| Magic Mouse (all generations) | Mouse gestures |
+| Other mice | Scroll direction only |
+
+Details, hardware-dependent features and what has been tested are in
+[docs/compatibility.md](docs/compatibility.md).
 
 ## Installation
+
+### Download
+
+1. Download `OpenGestures-<version>.zip` from the
+   [latest release](https://github.com/rafaelcaetite/OpenGestures/releases/latest)
+   and unzip it.
+2. Move `OpenGestures.app` to Applications.
+3. Open it. The app is not notarized, so macOS refuses the first time: open
+   System Settings > Privacy & Security, find the message about
+   OpenGestures and choose **Open Anyway**.
+4. Allow **Accessibility** when asked, or in System Settings > Privacy &
+   Security > Accessibility.
+
+The app adds itself to the login items the first time it runs from an
+Applications folder.
+
+### Build from source
+
+Requires Xcode or the Command Line Tools (`xcode-select --install`).
 
 ```sh
 git clone https://github.com/rafaelcaetite/OpenGestures.git
@@ -44,42 +94,44 @@ cd OpenGestures
 make install
 ```
 
-This builds a release binary for your Mac, installs `OpenGestures.app` into
-`~/Applications`, starts it, and registers it to open at login. Use
-`make install ARCHS="arm64 x86_64"` for a universal build, and
-`make install PREFIX=/Applications` to install for all users.
+This builds for your Mac, installs to `~/Applications`, and starts the app.
+Use `make install ARCHS="arm64 x86_64"` for a universal build and
+`make install PREFIX=/Applications` to install for all users. `make link`
+adds an `opengestures` command to `~/.local/bin`.
 
-On first launch macOS asks for **Accessibility** permission, which
-OpenGestures needs to send keystrokes and handle clicks. Turn it on in
-System Settings > Privacy & Security > Accessibility. The permission is
-tied to the bundle identifier, so it survives later rebuilds.
+Local builds are signed so that the Accessibility permission survives
+rebuilds.
 
-To call the command-line interface by name, run `make link`, which adds
-`opengestures` to `~/.local/bin`.
+## Getting started
 
-## Quick start
+Choose **Edit Gestures…** from the menu bar icon, or open the app again
+while it runs. Pick a gesture on the left and an action on the right; slides
+also have a sensitivity slider. Changes apply immediately.
 
-Choose **Edit Gestures…** from the menu bar icon (or open the app again
-while it runs). Pick a gesture on the left and an action on the right; slides
-also get a sensitivity slider. Changes apply as soon as they are made.
+OpenGestures observes the trackpad; it does not stop macOS from responding
+to the same movement. When a gesture is also used by macOS, the editor says
+so and links to System Settings > Trackpad, where you can turn the macOS
+gesture off.
 
-![The gesture editor](docs/images/editor.png)
+## Configuration
 
-Everything the editor writes goes to `~/.config/opengestures/config.toml`, a
-plain text file created, fully commented, on first launch. The editor
-changes only the lines it needs and leaves your comments alone. The file can
-do more than the editor shows, such as per-application bindings, Fn-only
-bindings and sequences; open it with **Open Configuration File**:
+The editor writes to `~/.config/opengestures/config.toml`, a commented text
+file that is reloaded as soon as it is saved. The editor changes only the
+lines it needs, so hand-written comments stay. Mistakes are reported with
+their line number and the last valid configuration stays active.
 
 ```toml
+[GENERAL]
+trackpad-natural-scrolling = true
+mouse-natural-scrolling = false
+
 [TRACKPAD]
-four-finger-slide = "volume"                 # Slide up or down to change the volume
+four-finger-slide = "volume"                 # Up and down set the volume
+three-finger-slide = "apps"                  # Pick an app in the ⌘⇥ switcher
 three-finger-double-tap = "play-pause"
 hold-left-tap-right = "next-tab"             # Rest a finger, tap to its right
 bottom-right-corner-click = "show-desktop"
-fn+four-finger-slide = "brightness"          # The same slide while holding Fn
-
-three-finger-slide = { left = "cmd+z", right = "cmd+shift+z", step = 10 }
+fn+four-finger-slide = "brightness"          # Only while Fn is held
 
 [TRACKPAD."Safari, Google Chrome"]
 four-finger-slide = "tabs"
@@ -87,20 +139,6 @@ four-finger-slide = "tabs"
 [MOUSE]
 two-finger-tap = "middle-click"
 ```
-
-Save the file and the new bindings apply immediately.
-
-### Gestures macOS already uses
-
-OpenGestures observes the trackpad; it does not stop macOS from responding
-to the same movement. If you bind a gesture that macOS also uses, such as
-four-finger vertical swipes for Mission Control, turn the macOS gesture off
-in System Settings > Trackpad > More Gestures. `OpenGestures check` lists
-every overlap, and so does the menu.
-
-## Configuration
-
-A binding is a gesture name and what it does:
 
 | Value | Effect |
 | --- | --- |
@@ -115,11 +153,11 @@ A binding is a gesture name and what it does:
 | `{ action = "cmd+w", haptic = false, sound = "Pop" }` | Add options |
 
 Slides take a preset (`volume`, `brightness`, `keyboard-backlight`, `zoom`,
-`tabs`, `history`, `undo`, `spaces`, `tracks`) or a table with any of `up`,
-`down`, `left` and `right` plus an optional `step` in millimetres.
+`tabs`, `history`, `undo`, `spaces`, `tracks`, `apps`) or a table with any of
+`up`, `down`, `left` and `right`, plus an optional `step` in millimetres and
+`hold` for modifier keys held during the slide.
 
-The full reference, including general settings and scoping rules, is in
-[docs/configuration.md](docs/configuration.md).
+The full reference is [docs/configuration.md](docs/configuration.md).
 
 ## Command line
 
@@ -130,24 +168,40 @@ OpenGestures gestures       List every gesture
 OpenGestures actions        List built-in actions, presets and action prefixes
 ```
 
-`trace` is the quickest way to see what OpenGestures recognizes while you
-experiment. With `--all` it reports every discrete gesture, bound or not.
+`trace` is the quickest way to see what OpenGestures recognizes. With
+`--all` it reports every discrete gesture, bound or not.
 
-## How it works
+## Performance
 
-OpenGestures reads contact frames from `MultitouchSupport.framework`, the
-private framework behind macOS's own gesture handling, about a hundred times
-a second while fingers are down. Each device has a recognizer, a small state
-machine that is fed frames synchronously on the framework's thread, so no
-work is queued per frame. When a gesture completes, its binding is resolved
-against the frontmost application and run on a separate serial queue.
-Physical clicks are only intercepted when a click gesture is bound.
+OpenGestures reads contact frames from `MultitouchSupport.framework` about a
+hundred times a second while fingers are down, and processes each one on the
+framework's own thread with no queuing and no allocation on ordinary frames.
+Measured on a 2019 MacBook Pro (Intel Core i9):
 
-[docs/architecture.md](docs/architecture.md) covers the design in more detail.
+| | |
+| --- | --- |
+| Frame with no fingers | 0.12 µs |
+| Frame with fingers resting | 0.38 µs |
+| Frame of a four-finger slide | 1.2 µs, about 0.01% of one core at 100 frames a second |
+| Idle CPU | 0%, with no timers or polling |
+| Memory | About 8 MB |
+| App size | 1.8 MB, universal |
 
-Because the framework is private, a future macOS release could change it.
-OpenGestures loads it at run time and reports a clear error rather than
-crashing if it disappears.
+Event taps for clicks and scrolling exist only while a setting needs them.
+The gesture editor is created when opened and released when closed.
+[docs/architecture.md](docs/architecture.md) explains the design.
+
+## Documentation
+
+| Document | Contents |
+| --- | --- |
+| [Compatibility](docs/compatibility.md) | Macs, input devices, hardware-dependent features, testing |
+| [Gestures](docs/gestures.md) | Every gesture and how it is recognized |
+| [Configuration](docs/configuration.md) | Settings, bindings, actions, presets and examples |
+| [Troubleshooting](docs/troubleshooting.md) | Permissions, overlaps, sensitivity, missed taps |
+| [Architecture](docs/architecture.md) | Data flow, threading, performance, the editor |
+| [Changelog](CHANGELOG.md) | Changes in each release |
+| [Contributing](CONTRIBUTING.md) | Building, testing, reporting problems |
 
 ## Development
 
@@ -157,18 +211,15 @@ make app        # Build .build/OpenGestures.app
 make zip        # Build a distributable archive
 ```
 
-The recognizer, configuration parser and action parsing are covered by unit
-tests that feed synthetic touch frames; no hardware is needed to run them.
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+The recognizer, configuration and action parsing are covered by unit tests
+that feed synthetic touch frames, so no hardware is needed to run them.
 
 ## Uninstalling
 
-```sh
-make uninstall
-```
-
-Your configuration in `~/.config/opengestures` is kept. Remove OpenGestures
-from System Settings > Privacy & Security > Accessibility as well.
+From a source checkout, run `make uninstall`. Otherwise turn off **Open at
+Login** in the OpenGestures menu, quit it, and delete the app. Your configuration in
+`~/.config/opengestures` is kept. Also remove OpenGestures from System
+Settings > Privacy & Security > Accessibility.
 
 ## Acknowledgements
 

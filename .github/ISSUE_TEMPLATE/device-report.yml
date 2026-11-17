@@ -1,0 +1,47 @@
+name: Device report
+description: A Mac or input device that works, fails, or is recognized as the wrong kind
+labels: [compatibility]
+body:
+  - type: dropdown
+    id: result
+    attributes:
+      label: Result
+      options:
+        - Works
+        - Partly works
+        - Does not work
+        - Recognized as the wrong kind of device
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Mac model
+      description: "Output of: sysctl -n hw.model"
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      description: "Output of: sw_vers -productVersion"
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Input device
+      description: Built-in trackpad, Magic Trackpad (which generation), Magic Mouse (which generation)
+    validations:
+      required: true
+  - type: textarea
+    id: registry
+    attributes:
+      label: Device details
+      description: "Output of: ioreg -r -c AppleMultitouchDevice -l | grep -E '\"(Product|Family ID|Sensor Rows|Built-In)\"'"
+      render: text
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Which gestures work and which do not.

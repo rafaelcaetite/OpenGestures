@@ -4,7 +4,9 @@ Bug reports and pull requests are welcome.
 
 ## Reporting a problem
 
-Please include your macOS version, Mac model, the device involved (built-in
+Use the issue templates: **Bug report** for something that does not work,
+**Device report** for a Mac or input device that behaves differently from
+[docs/compatibility.md](docs/compatibility.md). Please include your macOS version, Mac model, the device involved (built-in
 trackpad, Magic Trackpad or Magic Mouse), the relevant part of your
 configuration, and what `OpenGestures trace` prints while you perform the
 gesture.

@@ -1,0 +1,37 @@
+name: Bug report
+description: A gesture, action or setting that does not work as documented
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: configuration
+    attributes:
+      label: Configuration
+      description: The relevant lines of ~/.config/opengestures/config.toml.
+      render: toml
+  - type: textarea
+    id: trace
+    attributes:
+      label: Output of OpenGestures trace
+      description: Run it, perform the gesture, and paste what it prints.
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: OpenGestures version
+      description: Shown at the top of the menu bar menu.
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: macOS version and Mac model
+      description: "Output of: sw_vers -productVersion; sysctl -n hw.model"
+    validations:
+      required: true

@@ -87,12 +87,41 @@ suggestions for typos), device support and value types, then
 `SystemGestures` compares the bindings against the trackpad preferences
 macOS keeps and reports overlaps.
 
-## Idle cost
+## Performance
 
 There are no timers or polling loops. The app wakes for touch frames,
 device attach and detach notifications from IOKit, wake from sleep, changes
 to the configuration file, changes to the Accessibility permission list, and
 menu interaction. With the trackpad untouched it uses no CPU.
+
+Per frame, the engine looks up the device of the previous frame before
+consulting its dictionary, keeps per-device state on a class mutated in
+place, and refills a preallocated touch buffer. Binding lookup, which runs
+for every step of a slide, walks a section order computed when the
+configuration loads, so it allocates nothing. Release builds of the core
+skip Swift's dynamic exclusivity checks: every frame already runs under one
+lock on one thread.
+
+Measured by feeding synthetic frames through the real engine, actions off,
+on a 2019 MacBook Pro (Intel Core i9-9980HK):
+
+| Frame | Time |
+| --- | --- |
+| No fingers | 0.12 µs |
+| Four fingers resting | 0.38 µs |
+| Four-finger slide, about 1.5 steps per frame | 1.2 µs |
+
+Idle memory is about 8 MB of private footprint.
+
+## Devices
+
+`MultitouchManager` lists devices through MultitouchSupport and matches
+each to its `AppleMultitouchDevice` entry in the I/O Registry by its
+Multitouch ID. The registry's product name decides the kind: a Magic Mouse
+names itself, built-in devices are always trackpads, and surfaces with four
+sensor rows or fewer, such as the Touch Bar, are skipped. Family numbers are
+only a fallback, because they are not consistent across models. IOKit
+matching notifications restart input when a device is attached or removed.
 
 ## Testing
 

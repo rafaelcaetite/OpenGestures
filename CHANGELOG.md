@@ -4,6 +4,25 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.1] - 2026-11-17
+
+### Fixed
+
+- Multitouch devices are identified by their product name in the I/O
+  Registry. The built-in trackpad of MacBook Pros that report family 113 was
+  taken for a Magic Mouse, and the Touch Bar for a trackpad.
+
+### Changed
+
+- Less work per frame and per slide step: a four-finger slide frame takes
+  1.2 µs instead of 2.0, and volume steps no longer look up the audio
+  output each time.
+
+### Documentation
+
+- New compatibility guide covering Macs, input devices, hardware-dependent
+  features and what has been tested; reorganized READMEs; issue templates.
+
 ## [1.4.0] - 2026-11-17
 
 ### Changed
@@ -94,6 +113,7 @@ All notable changes to this project are documented here. The format follows
 - Menu bar app with an enable switch, binding list and login item.
 - `check`, `trace`, `gestures` and `actions` commands.
 
+[1.4.1]: https://github.com/rafaelcaetite/OpenGestures/releases/tag/v1.4.1
 [1.4.0]: https://github.com/rafaelcaetite/OpenGestures/releases/tag/v1.4.0
 [1.3.0]: https://github.com/rafaelcaetite/OpenGestures/releases/tag/v1.3.0
 [1.2.1]: https://github.com/rafaelcaetite/OpenGestures/releases/tag/v1.2.1

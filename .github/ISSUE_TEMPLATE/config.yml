@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Troubleshooting guide
+    url: https://github.com/rafaelcaetite/OpenGestures/blob/main/docs/troubleshooting.md
+    about: Common problems with permissions, overlapping macOS gestures and sensitivity.
