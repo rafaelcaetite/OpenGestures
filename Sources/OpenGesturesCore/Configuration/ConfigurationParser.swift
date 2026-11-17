@@ -78,6 +78,10 @@ public enum ConfigurationParser {
                 settings.recognizer.swipeDistance = try number(in: 5...80, unit: "millimetres")
             case "slide-step":
                 settings.recognizer.slideStep = try number(in: SlideBinding.stepRange, unit: "millimetres")
+            case "trackpad-natural-scrolling":
+                settings.trackpadNaturalScrolling = try flag()
+            case "mouse-natural-scrolling":
+                settings.mouseNaturalScrolling = try flag()
             case "edge-size":
                 settings.edgeSize = try number(in: 0.05...0.4, unit: "fractions of the surface")
             default:

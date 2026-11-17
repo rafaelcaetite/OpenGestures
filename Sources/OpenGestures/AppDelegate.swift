@@ -14,7 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         engine.handleFrame(device: device, contacts: contacts, timestamp: timestamp)
     }
     private lazy var clickInterceptor = ClickInterceptor(engine: engine)
-    private let scrollBlocker = ScrollBlocker()
+    private let scrollInterceptor = ScrollInterceptor()
     private lazy var editor = GestureEditorWindow(store: store)
 
     private var configuration = Configuration()
@@ -128,7 +128,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private func stopInput() {
         manager.stop()
         clickInterceptor.stop()
-        scrollBlocker.stop()
+        scrollInterceptor.stop()
     }
 
     private func scheduleRestart(after delay: TimeInterval) {
@@ -154,12 +154,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             clickInterceptor.stop()
         }
 
-        if isEnabled, engine.claimsScrolling {
-            if !scrollBlocker.start() {
-                Log.input.notice("Blocking scrolling during gestures needs Accessibility permission")
-            }
-        } else {
-            scrollBlocker.stop()
+        var scrolling = ScrollInterceptor.Options()
+        if isEnabled {
+            scrolling.blocksDuringGestures = engine.claimsScrolling
+            scrolling.trackpadNaturalScrolling = configuration.settings.trackpadNaturalScrolling
+            scrolling.mouseNaturalScrolling = configuration.settings.mouseNaturalScrolling
+        }
+        if !scrollInterceptor.update(scrolling) {
+            Log.input.notice("Scroll handling needs Accessibility permission")
         }
     }
 

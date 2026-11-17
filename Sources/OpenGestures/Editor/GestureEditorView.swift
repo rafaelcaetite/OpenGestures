@@ -565,13 +565,24 @@ private struct GeneralSettingsBar: View {
     @ObservedObject var model: GestureEditorModel
 
     var body: some View {
-        HStack(spacing: 20) {
+        HStack(spacing: 24) {
             Toggle("Haptic feedback", isOn: Binding(
                 get: { model.settings.hapticFeedback },
                 set: { model.setHapticFeedback($0) }
             ))
-            .toggleStyle(.checkbox)
-            .disabled(!model.isEditable)
+
+            HStack(spacing: 12) {
+                Text("Natural scrolling")
+                    .foregroundStyle(.secondary)
+                ForEach(DeviceKind.allCases, id: \.self) { device in
+                    Toggle(device == .trackpad ? "Trackpad" : "Mouse", isOn: Binding(
+                        get: { model.naturalScrolling(for: device) },
+                        set: { model.setNaturalScrolling($0, for: device) }
+                    ))
+                }
+            }
+
+            Spacer(minLength: 0)
 
             Picker("Dominant hand", selection: Binding(
                 get: { model.settings.recognizer.dominantHand },
@@ -581,13 +592,9 @@ private struct GeneralSettingsBar: View {
                 Text("Left").tag(Hand.left)
             }
             .fixedSize()
-            .disabled(!model.isEditable)
-
-            Spacer()
-
-            Button("Open Configuration File", action: model.openConfigurationFile)
-                .buttonStyle(.link)
         }
+        .toggleStyle(.checkbox)
+        .disabled(!model.isEditable)
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
     }

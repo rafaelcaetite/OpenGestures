@@ -41,6 +41,8 @@ public final class GestureEngine: @unchecked Sendable {
     /// While that many fingers are down, scrolling belongs to OpenGestures.
     private var claimedFingerCounts: UInt8 = 0
     private var scrollClaimed = false
+    /// Devices with fingers on them, by identifier.
+    private var touchingDevices: Set<UInt64> = []
 
     private let runner: ActionRunner
     private let levels = LevelAdjuster()
@@ -85,6 +87,7 @@ public final class GestureEngine: @unchecked Sendable {
                     normalized: normalized
                 ))
             }
+            noteTouching(device, state.frame.touches.isEmpty == false)
             if state.frame.touches.isEmpty && !state.recognizer.isSessionActive {
                 return []
             }
@@ -106,6 +109,24 @@ public final class GestureEngine: @unchecked Sendable {
     /// the scroll blocker is worth running.
     public var claimsScrolling: Bool {
         lock.withLock { claimedFingerCounts != 0 }
+    }
+
+    private func noteTouching(_ device: DeviceInfo, _ touching: Bool) {
+        guard touching != touchingDevices.contains(device.id) else { return }
+        if touching {
+            touchingDevices.insert(device.id)
+        } else {
+            touchingDevices.remove(device.id)
+        }
+        var bits: Int32 = 0
+        for id in touchingDevices {
+            switch devices[id]?.kind {
+            case .trackpad?: bits |= Int32(OGTouchingTrackpad)
+            case .mouse?: bits |= Int32(OGTouchingMouse)
+            case nil: break
+            }
+        }
+        OGSetTouchingDevices(bits)
     }
 
     private func claimScroll(_ claimed: Bool) {

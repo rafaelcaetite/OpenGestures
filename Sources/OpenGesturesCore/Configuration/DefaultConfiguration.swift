@@ -21,6 +21,8 @@ dominant-hand = "right"     # Decides index-to-pinky vs pinky-to-index
 # swipe-distance = 18       # Millimetres a swipe must travel
 # slide-step = 5            # Millimetres between slide steps without a preset
 # edge-size = 0.15          # Width of the edge zones for area clicks
+# trackpad-natural-scrolling = true   # Scroll direction per device; unset
+# mouse-natural-scrolling = false     # follows System Settings
 
 # ----------------------------------------------------------------------------
 # Trackpad bindings. Remove the # in front of a line to enable it.

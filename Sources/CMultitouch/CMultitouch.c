@@ -196,3 +196,13 @@ void OGSetScrollClaimed(bool claimed) {
 bool OGIsScrollClaimed(void) {
     return atomic_load_explicit(&scrollClaimed, memory_order_relaxed);
 }
+
+static atomic_int touchingDevices = 0;
+
+void OGSetTouchingDevices(int devices) {
+    atomic_store_explicit(&touchingDevices, devices, memory_order_relaxed);
+}
+
+int OGTouchingDevices(void) {
+    return atomic_load_explicit(&touchingDevices, memory_order_relaxed);
+}

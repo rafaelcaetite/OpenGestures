@@ -6,7 +6,9 @@ public enum BuiltInAction: String, CaseIterable, Sendable {
     case appExpose = "app-expose"
     case showDesktop = "show-desktop"
     case launchpad
+    case nextApp = "next-app"
     case previousApp = "previous-app"
+    case lastApp = "last-app"
 
     case nextTab = "next-tab"
     case previousTab = "previous-tab"
@@ -43,7 +45,9 @@ public enum BuiltInAction: String, CaseIterable, Sendable {
         case .appExpose: "Show all windows of the frontmost application"
         case .showDesktop: "Show the desktop"
         case .launchpad: "Open Launchpad or Apps"
-        case .previousApp: "Switch to the previously used application (⌘⇥)"
+        case .nextApp: "Bring the next open application forward, in Dock order"
+        case .previousApp: "Bring the previous open application forward, in Dock order"
+        case .lastApp: "Switch to the last used application (⌘⇥)"
         case .nextTab: "Next tab (⌃⇥)"
         case .previousTab: "Previous tab (⌃⇧⇥)"
         case .newTab: "New tab (⌘T)"

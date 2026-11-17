@@ -5,6 +5,10 @@ public struct Settings: Equatable, Sendable {
     public var showMenuBarIcon = true
     /// Width of the edge zones for area clicks, as a fraction of the surface.
     public var edgeSize = 0.15
+    /// Scroll direction for the trackpad and for mice, independent of each
+    /// other. Nil follows the system's natural scrolling setting.
+    public var trackpadNaturalScrolling: Bool?
+    public var mouseNaturalScrolling: Bool?
     public var recognizer = RecognizerSettings()
 
     public init() {}

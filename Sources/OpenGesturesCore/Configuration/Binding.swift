@@ -97,6 +97,7 @@ public enum SlidePreset: String, CaseIterable, Sendable {
     case undo
     case spaces
     case tracks
+    case apps
 
     public var actions: [Direction: String] {
         switch self {
@@ -109,6 +110,7 @@ public enum SlidePreset: String, CaseIterable, Sendable {
         case .undo: [.left: "cmd+z", .right: "cmd+shift+z"]
         case .spaces: [.left: "ctrl+left", .right: "ctrl+right"]
         case .tracks: [.left: "previous-track", .right: "next-track"]
+        case .apps: [.left: "previous-app", .right: "next-app"]
         }
     }
 
@@ -123,7 +125,7 @@ public enum SlidePreset: String, CaseIterable, Sendable {
         case .zoom: 8
         case .undo: 10
         case .tabs: 15
-        case .history, .spaces, .tracks: 25
+        case .history, .spaces, .tracks, .apps: 25
         }
     }
 
@@ -154,6 +156,7 @@ public enum SlidePreset: String, CaseIterable, Sendable {
         case .undo: "Left undoes (⌘Z), right redoes (⌘⇧Z)"
         case .spaces: "Left and right move between desktops"
         case .tracks: "Left and right skip between tracks"
+        case .apps: "Left and right move between open applications"
         }
     }
 }

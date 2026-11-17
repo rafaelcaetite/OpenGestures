@@ -45,6 +45,7 @@
 "One step every %@ mm" = "Um passo a cada %@ mm";
 "Haptic feedback" = "Resposta tátil";
 "Dominant hand" = "Mão dominante";
+"Natural scrolling" = "Rolagem natural";
 "Right" = "Direita";
 "Left" = "Esquerda";
 "Press the keys…" = "Pressione as teclas…";
@@ -122,6 +123,7 @@
 "Undo and redo" = "Desfazer e refazer";
 "Switch desktops" = "Trocar de mesa";
 "Previous and next track" = "Faixa anterior e próxima";
+"Switch apps" = "Trocar de app";
 
 /* Action groups */
 "System" = "Sistema";
@@ -136,7 +138,10 @@
 "App windows" = "Janelas do app";
 "Show desktop" = "Mostrar a mesa";
 "Launchpad" = "Launchpad";
+"Next app" = "Próximo app";
 "Previous app" = "App anterior";
+"Last used app" = "Último app usado";
+"Apps" = "Apps";
 "Next tab" = "Próxima aba";
 "Previous tab" = "Aba anterior";
 "New tab" = "Nova aba";

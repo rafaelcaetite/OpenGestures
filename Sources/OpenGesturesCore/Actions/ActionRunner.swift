@@ -70,7 +70,9 @@ public final class ActionRunner: @unchecked Sendable {
             } else {
                 dock("com.apple.launchpad.toggle", fallback: nil)
             }
-        case .previousApp: keys("cmd+tab")
+        case .nextApp: ApplicationSwitcher.shared.cycle(forward: true)
+        case .previousApp: ApplicationSwitcher.shared.cycle(forward: false)
+        case .lastApp: keys("cmd+tab")
         case .nextTab: keys("ctrl+tab")
         case .previousTab: keys("ctrl+shift+tab")
         case .newTab: keys("cmd+t")

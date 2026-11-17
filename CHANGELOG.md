@@ -4,6 +4,19 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] - 2026-11-17
+
+### Added
+
+- `next-app` and `previous-app` bring the next or previous open application
+  forward, in Dock order, and the `apps` slide preset moves between them.
+- `trackpad-natural-scrolling` and `mouse-natural-scrolling` give each kind
+  of device its own scroll direction, with checkboxes in the editor.
+
+### Changed
+
+- `previous-app` used to send ⌘⇥; that is now `last-app`.
+
 ## [1.2.1] - 2026-11-17
 
 ### Fixed
@@ -68,6 +81,7 @@ All notable changes to this project are documented here. The format follows
 - Menu bar app with an enable switch, binding list and login item.
 - `check`, `trace`, `gestures` and `actions` commands.
 
+[1.3.0]: https://github.com/rafaelcaetite/OpenGestures/releases/tag/v1.3.0
 [1.2.1]: https://github.com/rafaelcaetite/OpenGestures/releases/tag/v1.2.1
 [1.2.0]: https://github.com/rafaelcaetite/OpenGestures/releases/tag/v1.2.0
 [1.1.0]: https://github.com/rafaelcaetite/OpenGestures/releases/tag/v1.1.0

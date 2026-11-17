@@ -116,6 +116,7 @@ enum Titles {
         case .undo: String(localized: "Undo and redo")
         case .spaces: String(localized: "Switch desktops")
         case .tracks: String(localized: "Previous and next track")
+        case .apps: String(localized: "Switch apps")
         }
     }
 
@@ -125,7 +126,9 @@ enum Titles {
         case .appExpose: String(localized: "App windows")
         case .showDesktop: String(localized: "Show desktop")
         case .launchpad: String(localized: "Launchpad")
+        case .nextApp: String(localized: "Next app")
         case .previousApp: String(localized: "Previous app")
+        case .lastApp: String(localized: "Last used app")
         case .nextTab: String(localized: "Next tab")
         case .previousTab: String(localized: "Previous tab")
         case .newTab: String(localized: "New tab")
@@ -156,7 +159,8 @@ enum Titles {
 
     /// Built-in actions as the action menu groups them.
     static let actionGroups: [(title: String, actions: [BuiltInAction])] = [
-        (String(localized: "System"), [.missionControl, .appExpose, .showDesktop, .launchpad, .previousApp]),
+        (String(localized: "System"), [.missionControl, .appExpose, .showDesktop, .launchpad]),
+        (String(localized: "Apps"), [.nextApp, .previousApp, .lastApp]),
         (String(localized: "Tabs"), [.nextTab, .previousTab, .newTab, .closeTab, .reopenTab]),
         (String(localized: "Windows"), [.maximize, .fullScreen, .minimize]),
         (String(localized: "Media"), [.playPause, .nextTrack, .previousTrack, .mute, .volumeUp, .volumeDown]),

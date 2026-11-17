@@ -136,3 +136,38 @@ struct ConfigurationTests {
         #expect(warnings.contains { $0.hasPrefix("line 4: three-finger-tap") })
     }
 }
+
+struct ScrollingAndApplicationTests {
+    @Test func readsScrollDirectionPerDevice() throws {
+        let configuration = try ConfigurationParser.parse("""
+            [GENERAL]
+            trackpad-natural-scrolling = true
+            mouse-natural-scrolling = false
+            """)
+        #expect(configuration.settings.trackpadNaturalScrolling == true)
+        #expect(configuration.settings.mouseNaturalScrolling == false)
+        #expect(try ConfigurationParser.parse("").settings.trackpadNaturalScrolling == nil)
+    }
+
+    @Test func switchesApplicationsInBothDirections() throws {
+        let configuration = try ConfigurationParser.parse("""
+            [TRACKPAD]
+            three-finger-swipe-right = "next-app"
+            three-finger-swipe-left = "previous-app"
+            four-finger-tap = "last-app"
+            three-finger-slide = "apps"
+            """)
+        func binding(_ gesture: Gesture) -> Binding? {
+            configuration.binding(for: gesture, device: .trackpad, application: nil, functionKeyDown: false)
+        }
+        guard case .action(let right) = binding(.threeFingerSwipeRight),
+              case .action(let last) = binding(.fourFingerTap),
+              case .slide(let slide) = binding(.threeFingerSlide) else {
+            Issue.record("expected the bindings to parse")
+            return
+        }
+        #expect(right.steps == [.builtIn(.nextApp)])
+        #expect(last.steps == [.builtIn(.lastApp)])
+        #expect(slide.actions[.left]?.steps == [.builtIn(.previousApp)])
+    }
+}

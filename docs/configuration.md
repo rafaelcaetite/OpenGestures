@@ -36,6 +36,8 @@ double-tap-interval = 300
 swipe-distance = 18
 slide-step = 5
 edge-size = 0.15
+trackpad-natural-scrolling = true
+mouse-natural-scrolling = false
 ```
 
 | Setting | Default | Range | Meaning |
@@ -48,6 +50,15 @@ edge-size = 0.15
 | `swipe-distance` | `18` | 5–80 mm | How far a swipe travels before it fires. |
 | `slide-step` | `5` | 0.2–100 mm | Distance between two steps of a slide, unless the binding sets its own. |
 | `edge-size` | `0.15` | 0.05–0.4 | Width of the edge zones for area clicks, as a fraction of the surface. |
+| `trackpad-natural-scrolling` | system | | Scroll direction for trackpads. Unset follows System Settings. |
+| `mouse-natural-scrolling` | system | | Scroll direction for mice, wheel and Magic Mouse alike. Unset follows System Settings. |
+
+macOS has one natural scrolling setting for every device. When the two
+settings above differ from it, OpenGestures reverses scroll events from the
+device that should go the other way, so the trackpad can scroll naturally
+while a mouse wheel does not. Wheel events always count as a mouse;
+continuous ones count as whichever surface has fingers on it. Leave System
+Settings as it is: OpenGestures works out the difference itself.
 
 ## Sections
 
@@ -173,7 +184,8 @@ triggered them:
 | `app-expose` | Show all windows of the frontmost application |
 | `show-desktop` | Show the desktop |
 | `launchpad` | Open Launchpad, or Apps on macOS 26 |
-| `previous-app` | Switch to the previously used application |
+| `next-app`, `previous-app` | Bring the next or previous open application forward, in Dock order (Finder first, then kept applications, then the rest) |
+| `last-app` | Switch to the last used application (⌘⇥) |
 | `next-tab`, `previous-tab` | Move between tabs (⌃⇥, ⌃⇧⇥) |
 | `new-tab`, `close-tab`, `reopen-tab` | ⌘T, ⌘W, ⌘⇧T |
 | `maximize` | Zoom the focused window |
@@ -207,6 +219,7 @@ four-finger-slide = "volume"
 | `history` | right: `cmd+]` | left: `cmd+[` | 25 mm |
 | `spaces` | right: `ctrl+right` | left: `ctrl+left` | 25 mm |
 | `tracks` | right: `next-track` | left: `previous-track` | 25 mm |
+| `apps` | right: `next-app` | left: `previous-app` | 25 mm |
 
 The level presets move in quarter steps, 64 from bottom to top, so the
 whole range takes about 5 cm. Their haptic tap comes once per whole step.

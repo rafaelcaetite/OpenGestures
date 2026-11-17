@@ -96,6 +96,13 @@ bool OGDockSendNotification(CFStringRef name);
 void OGSetScrollClaimed(bool claimed);
 bool OGIsScrollClaimed(void);
 
+/// Which kinds of multitouch device have fingers on them right now, as bits:
+/// OGTouchingTrackpad and OGTouchingMouse. Lets the scroll tap tell a
+/// trackpad scroll from a Magic Mouse one.
+enum { OGTouchingTrackpad = 1, OGTouchingMouse = 2 };
+void OGSetTouchingDevices(int devices);
+int OGTouchingDevices(void);
+
 CF_ASSUME_NONNULL_END
 
 #endif

@@ -154,6 +154,23 @@ final class GestureEditorModel: ObservableObject {
         write(enabled ? "true" : "false", key: "haptic-feedback", section: "GENERAL")
     }
 
+    /// The scroll direction a device has now: its own setting, or the
+    /// system's when it has none.
+    func naturalScrolling(for device: DeviceKind) -> Bool {
+        let own = device == .trackpad ? settings.trackpadNaturalScrolling : settings.mouseNaturalScrolling
+        return own ?? Self.systemNaturalScrolling
+    }
+
+    func setNaturalScrolling(_ enabled: Bool, for device: DeviceKind) {
+        let key = device == .trackpad ? "trackpad-natural-scrolling" : "mouse-natural-scrolling"
+        write(enabled ? "true" : "false", key: key, section: "GENERAL")
+    }
+
+    private static var systemNaturalScrolling: Bool {
+        let value = CFPreferencesCopyAppValue("com.apple.swipescrolldirection" as CFString, kCFPreferencesAnyApplication)
+        return (value as? Bool) ?? true
+    }
+
     func setDominantHand(_ hand: Hand) {
         write(TOMLValue.quoted(hand.rawValue), key: "dominant-hand", section: "GENERAL")
     }

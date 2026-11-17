@@ -135,7 +135,7 @@ fingers and axis, the slide wins.
 
 While three or more fingers drive a bound slide or swipe, scroll events are
 dropped, including the momentum after the fingers lift, so the window under
-the pointer does not scroll at the same time. Two-finger scrolling is never
+the pointer does not scroll at the same time. Ordinary scrolling is never
 touched.
 
 **Hold slide.** One finger rests and a second finger, landing at least
