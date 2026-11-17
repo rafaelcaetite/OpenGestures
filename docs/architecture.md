@@ -6,7 +6,7 @@ OpenGestures is a Swift package with three targets:
 | --- | --- |
 | `CMultitouch` | About 280 lines of C that load `MultitouchSupport.framework` with `dlopen`, declare its contact layout, and forward frames to a single handler. |
 | `OpenGesturesCore` | Recognition, configuration, actions and the engine that connects them. Free of UI code and covered by tests. |
-| `OpenGestures` | The executable: menu bar app, launch agent, file watcher and command-line interface. |
+| `OpenGestures` | The executable: menu bar app, gesture editor, launch agent, file watcher and command-line interface. |
 
 ## Data flow
 
@@ -98,3 +98,18 @@ menu interaction. With the trackpad untouched it uses no CPU.
 `make test` runs the suite. Recognizer tests build touch frames from finger
 positions and timestamps, so every gesture can be exercised without
 hardware. `OpenGestures trace` is the complement on a real device.
+
+## Gesture editor
+
+The editor is a SwiftUI window owned by `GestureEditorWindow`. It is built
+when opened and released when closed, together with its model, so an idle
+OpenGestures carries none of SwiftUI's memory.
+
+It never serializes the whole configuration. `ConfigurationDocument` finds
+the lines of one key inside one table and replaces, inserts or removes only
+those, keeping comments, blank lines and commented-out examples. Values are
+decoded into `ActionDraft` and `SlideDraft`; anything the editor cannot show
+as a field (sequences, scripts, expanded tables) stays as written and is only
+replaced when a different action is picked. Every edit is parsed before it
+is saved, so the editor cannot write a file the app would refuse, and the
+file watcher then reloads the engine as it would after any other save.

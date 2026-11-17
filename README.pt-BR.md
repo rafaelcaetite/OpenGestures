@@ -54,9 +54,18 @@ identificador do app e continua valendo depois de recompilar.
 
 ## Primeiros passos
 
-A configuração fica em `~/.config/opengestures/config.toml` e é criada, toda
-comentada, na primeira execução. Abra pelo ícone da barra de menus em
-**Edit Configuration…**:
+Escolha **Editar gestos…** no ícone da barra de menus (ou abra o app de novo
+com ele rodando). Escolha um gesto à esquerda e a ação à direita; os
+deslizes também têm um controle de sensibilidade. As mudanças valem na hora.
+A interface segue o idioma do sistema, em português ou inglês.
+
+![O editor de gestos](docs/images/editor.png)
+
+Tudo o que o editor grava vai para `~/.config/opengestures/config.toml`, um
+arquivo de texto criado, todo comentado, na primeira execução. O editor muda
+só as linhas necessárias e mantém seus comentários. O arquivo faz mais do
+que o editor mostra, como atalhos por app, atalhos só com Fn e sequências;
+abra em **Abrir arquivo de configuração**:
 
 ```toml
 [TRACKPAD]

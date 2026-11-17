@@ -58,32 +58,46 @@ public enum SystemGestures {
         in configuration: Configuration,
         preference: (String) -> Int? = readPreference
     ) -> [String] {
-        func isOn(_ key: String) -> Bool { (preference(key) ?? 0) != 0 }
-
         var warnings: [String] = []
         var reported: Set<String> = []
         for section in configuration.sections where section.device == .trackpad {
             for entry in section.entries {
-                for rule in rules where isOn(rule.key)
-                    && rule.requires.allSatisfy(isOn)
-                    && !rule.unless.contains(where: isOn) {
-                    let gesture = entry.key.gesture
-                    var overlaps = rule.gestures.contains(gesture)
-                    if case .slide(let slide) = entry.binding, let axis = rule.slideAxes[gesture] {
-                        overlaps = overlaps || slide.actions.keys.contains { $0.axis == axis }
-                    }
-                    let id = "\(entry.key.name)|\(rule.feature)"
-                    if overlaps, !reported.contains(id) {
-                        reported.insert(id)
-                        warnings.append(
-                            "line \(entry.line): \(entry.key.name) overlaps the macOS gesture \"\(rule.feature)\"; "
-                                + "turn it off in System Settings > Trackpad or both will run"
-                        )
-                    }
+                for feature in overlaps(entry.key.gesture, binding: entry.binding, preference: preference) {
+                    let id = "\(entry.key.name)|\(feature)"
+                    guard !reported.contains(id) else { continue }
+                    reported.insert(id)
+                    warnings.append(
+                        "line \(entry.line): \(entry.key.name) overlaps the macOS gesture \"\(feature)\"; "
+                            + "turn it off in System Settings > Trackpad or both will run"
+                    )
                 }
             }
         }
         return warnings
+    }
+
+    /// The macOS features, by their System Settings names, that also respond
+    /// when `gesture` is bound to `binding` on the trackpad.
+    public static func overlaps(
+        _ gesture: Gesture,
+        binding: Binding,
+        preference: (String) -> Int? = readPreference
+    ) -> [String] {
+        func isOn(_ key: String) -> Bool { (preference(key) ?? 0) != 0 }
+
+        var features: [String] = []
+        for rule in rules where isOn(rule.key)
+            && rule.requires.allSatisfy(isOn)
+            && !rule.unless.contains(where: isOn) {
+            var overlaps = rule.gestures.contains(gesture)
+            if case .slide(let slide) = binding, let axis = rule.slideAxes[gesture] {
+                overlaps = overlaps || slide.actions.keys.contains { $0.axis == axis }
+            }
+            if overlaps, !features.contains(rule.feature) {
+                features.append(rule.feature)
+            }
+        }
+        return features
     }
 
     public static func readPreference(_ key: String) -> Int? {

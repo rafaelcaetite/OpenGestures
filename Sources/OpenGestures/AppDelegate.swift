@@ -14,6 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         engine.handleFrame(device: device, contacts: contacts, timestamp: timestamp)
     }
     private lazy var clickInterceptor = ClickInterceptor(engine: engine)
+    private lazy var editor = GestureEditorWindow(store: store)
 
     private var configuration = Configuration()
     private var configurationError: String?
@@ -33,6 +34,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             return
         }
 
+        NSApp.mainMenu = Self.makeMainMenu()
         KeyboardLayout.shared.startTracking()
         applications.startTracking()
 
@@ -60,6 +62,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         stopInput()
+    }
+
+    /// Opening the app again while it runs shows the gesture editor.
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        editor.show()
+        return false
+    }
+
+    /// An agent app shows no menu bar, but its main menu still routes key
+    /// equivalents, which text fields need for copy and paste.
+    private static func makeMainMenu() -> NSMenu {
+        let edit = NSMenu(title: "Edit")
+        edit.addItem(withTitle: "Undo", action: Selector(("undo:")), keyEquivalent: "z")
+        edit.addItem(withTitle: "Redo", action: Selector(("redo:")), keyEquivalent: "Z")
+        edit.addItem(.separator())
+        edit.addItem(withTitle: "Cut", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        edit.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        edit.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        edit.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        edit.addItem(.separator())
+        edit.addItem(withTitle: "Close Window", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
+
+        let menu = NSMenu()
+        let item = NSMenuItem()
+        item.submenu = edit
+        menu.addItem(item)
+        return menu
     }
 
     private func observeSystem() {
@@ -142,6 +171,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         updateClickInterceptor()
         updateStatusItem()
+        editor.configurationDidChange()
     }
 
     // MARK: - Status item
@@ -177,61 +207,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(disabled("OpenGestures \(Version.current)"))
 
         if !Accessibility.isTrusted {
-            menu.addItem(item("Grant Accessibility Permission…", #selector(openAccessibilitySettings)))
+            menu.addItem(item(String(localized: "Grant Accessibility Permission…"), #selector(openAccessibilitySettings)))
         }
         if let configurationError {
-            menu.addItem(disabled("Configuration error: \(configurationError)"))
+            menu.addItem(disabled(String(localized: "Configuration error: \(configurationError)")))
         }
         if !configuration.warnings.isEmpty {
-            let warnings = NSMenuItem(title: "\(configuration.warnings.count) Warning(s)", action: nil, keyEquivalent: "")
+            let warnings = NSMenuItem(title: String(localized: "Warnings: \(configuration.warnings.count)"), action: nil, keyEquivalent: "")
             let submenu = NSMenu()
             configuration.warnings.forEach { submenu.addItem(disabled($0)) }
             warnings.submenu = submenu
             menu.addItem(warnings)
         }
         if let last = lastEvent.description {
-            menu.addItem(disabled("Last gesture: \(last)"))
+            menu.addItem(disabled(String(localized: "Last gesture: \(last)")))
         }
 
         menu.addItem(.separator())
-        let enabled = item("Enabled", #selector(toggleEnabled))
+        let enabled = item(String(localized: "Enabled"), #selector(toggleEnabled))
         enabled.state = isEnabled ? .on : .off
         menu.addItem(enabled)
-        menu.addItem(bindingsItem())
+        menu.addItem(item(String(localized: "Edit Gestures…"), #selector(showEditor), key: ","))
 
         menu.addItem(.separator())
-        menu.addItem(item("Edit Configuration…", #selector(editConfiguration)))
-        menu.addItem(item("Show Configuration in Finder", #selector(revealConfiguration)))
-        menu.addItem(item("Reload Configuration", #selector(reload)))
+        menu.addItem(item(String(localized: "Open Configuration File"), #selector(editConfiguration)))
+        menu.addItem(item(String(localized: "Show Configuration in Finder"), #selector(revealConfiguration)))
+        menu.addItem(item(String(localized: "Reload Configuration"), #selector(reload)))
 
         menu.addItem(.separator())
-        let login = item("Open at Login", #selector(toggleLoginItem))
+        let login = item(String(localized: "Open at Login"), #selector(toggleLoginItem))
         login.state = loginItem.isEnabled ? .on : .off
         menu.addItem(login)
-        menu.addItem(item("Quit OpenGestures", #selector(quit), key: "q"))
-    }
-
-    private func bindingsItem() -> NSMenuItem {
-        let item = NSMenuItem(title: "Bindings", action: nil, keyEquivalent: "")
-        let submenu = NSMenu()
-        for section in configuration.sections where !section.entries.isEmpty {
-            if submenu.numberOfItems > 0 {
-                submenu.addItem(.separator())
-            }
-            submenu.addItem(disabled("\(section.device.sectionName) — \(section.scope.title)"))
-            for entry in section.entries {
-                var title = "\(entry.key.name)  →  \(entry.binding.source)"
-                if let note = entry.note {
-                    title += "  (\(note))"
-                }
-                submenu.addItem(disabled(title))
-            }
-        }
-        if submenu.numberOfItems == 0 {
-            submenu.addItem(disabled("No bindings yet. Choose Edit Configuration…"))
-        }
-        item.submenu = submenu
-        return item
+        menu.addItem(item(String(localized: "Quit OpenGestures"), #selector(quit), key: "q"))
     }
 
     private func item(_ title: String, _ action: Selector, key: String = "") -> NSMenuItem {
@@ -247,6 +254,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     // MARK: - Menu actions
+
+    @objc private func showEditor() {
+        editor.show()
+    }
 
     @objc private func toggleEnabled() {
         isEnabled.toggle()

@@ -5,8 +5,9 @@ public enum DefaultConfiguration {
     public static let text = #"""
 # OpenGestures configuration
 #
-# Changes are picked up as soon as this file is saved. Run
-# `OpenGestures check` to validate it from the terminal.
+# Changes are picked up as soon as this file is saved. Most of it can also
+# be edited from the menu bar icon with Edit Gestures…, which keeps these
+# comments. Run `OpenGestures check` to validate it from the terminal.
 #
 # Full reference: https://github.com/rafaelcaetite/OpenGestures/blob/main/docs/configuration.md
 
@@ -18,7 +19,7 @@ dominant-hand = "right"     # Decides index-to-pinky vs pinky-to-index
 # tap-duration = 300        # Milliseconds a finger may rest and still tap
 # double-tap-interval = 300 # Milliseconds allowed between two taps
 # swipe-distance = 18       # Millimetres a swipe must travel
-# slide-step = 5            # Millimetres between two steps of a slide
+# slide-step = 5            # Millimetres between slide steps without a preset
 # edge-size = 0.15          # Width of the edge zones for area clicks
 
 # ----------------------------------------------------------------------------

@@ -59,9 +59,17 @@ To call the command-line interface by name, run `make link`, which adds
 
 ## Quick start
 
-The configuration lives at `~/.config/opengestures/config.toml` and is
-created, fully commented, on first launch. Open it from the menu bar icon
-with **Edit Configuration…**:
+Choose **Edit Gestures…** from the menu bar icon (or open the app again
+while it runs). Pick a gesture on the left and an action on the right; slides
+also get a sensitivity slider. Changes apply as soon as they are made.
+
+![The gesture editor](docs/images/editor.png)
+
+Everything the editor writes goes to `~/.config/opengestures/config.toml`, a
+plain text file created, fully commented, on first launch. The editor
+changes only the lines it needs and leaves your comments alone. The file can
+do more than the editor shows, such as per-application bindings, Fn-only
+bindings and sequences; open it with **Open Configuration File**:
 
 ```toml
 [TRACKPAD]

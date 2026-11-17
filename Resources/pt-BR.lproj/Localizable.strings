@@ -1,0 +1,175 @@
+/* Brazilian Portuguese. Keys are the English text used in the source. */
+
+/* Menu bar */
+"Enabled" = "Ativado";
+"Edit Gestures…" = "Editar gestos…";
+"Open Configuration File" = "Abrir arquivo de configuração";
+"Show Configuration in Finder" = "Mostrar configuração no Finder";
+"Reload Configuration" = "Recarregar configuração";
+"Grant Accessibility Permission…" = "Permitir em Acessibilidade…";
+"Configuration error: %@" = "Erro na configuração: %@";
+"Warnings: %lld" = "Avisos: %lld";
+"Last gesture: %@" = "Último gesto: %@";
+"Open at Login" = "Abrir ao iniciar sessão";
+"Quit OpenGestures" = "Encerrar o OpenGestures";
+
+/* Editor */
+"No gesture selected" = "Nenhum gesto selecionado";
+"Device" = "Dispositivo";
+"In use" = "Em uso";
+"Search" = "Buscar";
+"Clear search" = "Limpar busca";
+"The configuration file has an error, so editing is paused until it is fixed." = "O arquivo de configuração tem um erro. A edição volta quando ele for corrigido.";
+"macOS also responds to this gesture (%@). Turn that off, or both will run." = "O macOS também usa este gesto (%@). Desative-o lá, ou os dois vão agir juntos.";
+"Open Trackpad Settings" = "Abrir ajustes do Trackpad";
+"The change was not saved." = "A alteração não foi salva.";
+"Action" = "Ação";
+"None" = "Nenhuma";
+"Keyboard Shortcut" = "Atalho de teclado";
+"Open Application" = "Abrir app";
+"Open Link" = "Abrir link";
+"Type Text" = "Digitar texto";
+"Custom" = "Personalizada";
+"Shortcut" = "Atalho";
+"Application" = "App";
+"Choose…" = "Escolher…";
+"Choose" = "Escolher";
+"Link" = "Link";
+"Text" = "Texto";
+"Value" = "Valor";
+"Written by hand in the configuration file." = "Escrita à mão no arquivo de configuração.";
+"Sensitivity" = "Sensibilidade";
+"Low" = "Baixa";
+"High" = "Alta";
+"Whole range in about %@ cm" = "De 0 a 100%% em cerca de %@ cm";
+"One step every %@ mm" = "Um passo a cada %@ mm";
+"Haptic feedback" = "Resposta tátil";
+"Dominant hand" = "Mão dominante";
+"Right" = "Direita";
+"Left" = "Esquerda";
+"Press the keys…" = "Pressione as teclas…";
+"Record shortcut" = "Gravar atalho";
+
+/* Devices */
+"Trackpad" = "Trackpad";
+"Magic Mouse" = "Magic Mouse";
+
+/* Gesture groups */
+"Taps" = "Toques";
+"Double taps" = "Toques duplos";
+"Hold and tap" = "Segurar e tocar";
+"Swipes" = "Passadas";
+"Continuous slides" = "Deslizes contínuos";
+"Finger rolls" = "Sequência de dedos";
+"Clicks" = "Cliques";
+
+/* Gestures */
+"One-finger tap" = "Toque com 1 dedo";
+"%lld-finger tap" = "Toque com %lld dedos";
+"One-finger double tap" = "Toque duplo com 1 dedo";
+"%lld-finger double tap" = "Toque duplo com %lld dedos";
+"One-finger swipe" = "Passar 1 dedo";
+"%lld-finger swipe" = "Passar %lld dedos";
+"One-finger swipe %@" = "Passar 1 dedo %@";
+"%lld-finger swipe %@" = "Passar %lld dedos %@";
+"left" = "para a esquerda";
+"right" = "para a direita";
+"up" = "para cima";
+"down" = "para baixo";
+"%lld-finger slide" = "Deslizar %lld dedos";
+"Hold and slide" = "Segurar e deslizar";
+"Hold, tap right" = "Segurar, tocar à direita";
+"Hold, tap left" = "Segurar, tocar à esquerda";
+"Hold two, tap left" = "Segurar dois, tocar à esquerda";
+"Hold two, tap right" = "Segurar dois, tocar à direita";
+"Hold two, tap between" = "Segurar dois, tocar no meio";
+"Hold three, tap left" = "Segurar três, tocar à esquerda";
+"Hold three, tap right" = "Segurar três, tocar à direita";
+"Index to pinky" = "Do indicador ao mínimo";
+"Pinky to index" = "Do mínimo ao indicador";
+"%lld-finger click" = "Clique com %lld dedos";
+"Click any edge" = "Clicar em qualquer borda";
+"Click any corner" = "Clicar em qualquer canto";
+"Click top-left corner" = "Clicar no canto superior esquerdo";
+"Click top-right corner" = "Clicar no canto superior direito";
+"Click bottom-left corner" = "Clicar no canto inferior esquerdo";
+"Click bottom-right corner" = "Clicar no canto inferior direito";
+"Click left edge" = "Clicar na borda esquerda";
+"Click right edge" = "Clicar na borda direita";
+"Click top edge" = "Clicar na borda de cima";
+"Click bottom edge" = "Clicar na borda de baixo";
+"Click left edge, %@" = "Clicar na borda esquerda, %@";
+"Click right edge, %@" = "Clicar na borda direita, %@";
+"Click top edge, %@" = "Clicar na borda de cima, %@";
+"Click bottom edge, %@" = "Clicar na borda de baixo, %@";
+"top half" = "metade de cima";
+"bottom half" = "metade de baixo";
+"left half" = "metade esquerda";
+"right half" = "metade direita";
+"top third" = "terço de cima";
+"middle third" = "terço do meio";
+"bottom third" = "terço de baixo";
+"left third" = "terço esquerdo";
+"right third" = "terço direito";
+
+/* Slide presets */
+"Volume" = "Volume";
+"Display brightness" = "Brilho da tela";
+"Keyboard backlight" = "Luz do teclado";
+"Zoom" = "Zoom";
+"Switch tabs" = "Trocar de aba";
+"Back and forward" = "Voltar e avançar";
+"Undo and redo" = "Desfazer e refazer";
+"Switch desktops" = "Trocar de mesa";
+"Previous and next track" = "Faixa anterior e próxima";
+
+/* Action groups */
+"System" = "Sistema";
+"Tabs" = "Abas";
+"Windows" = "Janelas";
+"Media" = "Mídia";
+"Display" = "Tela";
+"Mouse" = "Mouse";
+
+/* Actions */
+"Mission Control" = "Mission Control";
+"App windows" = "Janelas do app";
+"Show desktop" = "Mostrar a mesa";
+"Launchpad" = "Launchpad";
+"Previous app" = "App anterior";
+"Next tab" = "Próxima aba";
+"Previous tab" = "Aba anterior";
+"New tab" = "Nova aba";
+"Close tab" = "Fechar aba";
+"Reopen closed tab" = "Reabrir aba fechada";
+"Zoom window" = "Ampliar janela";
+"Full screen" = "Tela cheia";
+"Minimize window" = "Minimizar janela";
+"Play or pause" = "Tocar ou pausar";
+"Next track" = "Próxima faixa";
+"Previous track" = "Faixa anterior";
+"Mute" = "Silenciar";
+"Volume up" = "Aumentar volume";
+"Volume down" = "Diminuir volume";
+"Brightness up" = "Aumentar brilho";
+"Brightness down" = "Diminuir brilho";
+"Keyboard backlight up" = "Aumentar luz do teclado";
+"Keyboard backlight down" = "Diminuir luz do teclado";
+"Volume up a little" = "Aumentar um pouco o volume";
+"Volume down a little" = "Diminuir um pouco o volume";
+"Brightness up a little" = "Aumentar um pouco o brilho";
+"Brightness down a little" = "Diminuir um pouco o brilho";
+"Keyboard backlight up a little" = "Aumentar um pouco a luz do teclado";
+"Keyboard backlight down a little" = "Diminuir um pouco a luz do teclado";
+"Middle click" = "Clique do meio";
+
+/* macOS trackpad features, as System Settings names them */
+"Look up & data detectors" = "Pesquisar e detectores de dados";
+"Smart zoom" = "Zoom inteligente";
+"Secondary click with two fingers" = "Clique secundário com dois dedos";
+"Three finger drag" = "Arrastar com três dedos";
+"Swipe between pages or full-screen apps with three fingers" = "Passar entre páginas ou apps em tela cheia com três dedos";
+"Mission Control and App Exposé with three fingers" = "Mission Control e Exposé com três dedos";
+"Swipe between full-screen apps with four fingers" = "Passar entre apps em tela cheia com quatro dedos";
+"Mission Control and App Exposé with four fingers" = "Mission Control e Exposé com quatro dedos";
+"Launchpad and Show Desktop pinch" = "Pinça do Launchpad e Mostrar Mesa";

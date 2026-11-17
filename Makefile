@@ -42,8 +42,9 @@ build:
 
 app: build
 	rm -rf $(APP_DIR)
-	mkdir -p $(APP_DIR)/Contents/MacOS
+	mkdir -p $(APP_DIR)/Contents/MacOS $(APP_DIR)/Contents/Resources
 	cp $(BINARY) $(APP_DIR)/Contents/MacOS/$(APP_NAME)
+	cp -R Resources/*.lproj $(APP_DIR)/Contents/Resources/
 	sed 's/__VERSION__/$(VERSION)/g' Resources/Info.plist > $(APP_DIR)/Contents/Info.plist
 	codesign --force --sign "$(SIGN_IDENTITY)" $(SIGN_FLAGS) $(APP_DIR)
 	@echo "Built $(APP_DIR) $(VERSION) ($(ARCHS))"

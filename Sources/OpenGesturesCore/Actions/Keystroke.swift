@@ -112,6 +112,13 @@ public struct Keystroke: Hashable, Sendable, CustomStringConvertible {
         }
     }
 
+    /// The name a configuration uses for a key that types no character, such
+    /// as "return" or "f5".
+    public static func name(forKeyCode code: UInt16) -> String? {
+        let names = namedKeys.filter { $0.value == code }.map(\.key)
+        return names.first { ["return", "delete", "escape"].contains($0) } ?? names.sorted().first
+    }
+
     static let namedKeys: [String: UInt16] = {
         var keys: [String: UInt16] = [
             "return": UInt16(kVK_Return),

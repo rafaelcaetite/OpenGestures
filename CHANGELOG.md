@@ -4,6 +4,27 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] - 2026-11-17
+
+### Added
+
+- Gesture editor window, opened with **Edit Gestures…** or by opening the app
+  again: a searchable gesture list per device, a drawing of each gesture,
+  actions picked from a menu, a shortcut recorder, an application picker, a
+  sensitivity slider for slides and warnings for overlaps with macOS. It
+  edits the configuration file in place and keeps its comments.
+- English and Brazilian Portuguese interface, following the system language.
+- `*-fine` actions that change volume, brightness and keyboard backlight by a
+  quarter step.
+
+### Changed
+
+- The `volume`, `brightness` and `keyboard-backlight` presets move in
+  quarter steps every 0.8 mm, covering the whole range in about 5 cm
+  instead of 8 cm in 16 coarse steps, with one haptic tap per whole step.
+- Steps may be as small as 0.2 mm.
+- The menu's binding list is replaced by the editor.
+
 ## [1.0.0] - 2026-11-17
 
 ### Added
@@ -22,4 +43,5 @@ All notable changes to this project are documented here. The format follows
 - Menu bar app with an enable switch, binding list and login item.
 - `check`, `trace`, `gestures` and `actions` commands.
 
+[1.1.0]: https://github.com/rafaelcaetite/OpenGestures/releases/tag/v1.1.0
 [1.0.0]: https://github.com/rafaelcaetite/OpenGestures/releases/tag/v1.0.0
