@@ -22,6 +22,7 @@ contact frame ─▶ GestureEngine.handleFrame        ActionRunner
 main thread
 ───────────
 ClickInterceptor (event tap, only while click gestures are bound)
+ScrollBlocker (event tap on its own thread, only while 3+ finger motion is bound)
 ConfigurationWatcher (DispatchSource on the file and its directory)
 IOKit device notifications, wake notifications, menu
 ```

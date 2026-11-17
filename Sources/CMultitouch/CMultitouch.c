@@ -186,3 +186,13 @@ bool OGDockSendNotification(CFStringRef name) {
     dockSendNotification(name, 0);
     return true;
 }
+
+static atomic_bool scrollClaimed = false;
+
+void OGSetScrollClaimed(bool claimed) {
+    atomic_store_explicit(&scrollClaimed, claimed, memory_order_relaxed);
+}
+
+bool OGIsScrollClaimed(void) {
+    return atomic_load_explicit(&scrollClaimed, memory_order_relaxed);
+}

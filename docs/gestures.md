@@ -123,12 +123,20 @@ dominant axis, and it fires once when it has travelled `swipe-distance`
 (18 mm) along that axis. A swipe with a direction takes precedence over the
 any-direction form.
 
-**Slides.** Same start as a swipe, but a slide keeps firing: one step every
-`step` millimetres (the binding's own, the preset's, or `slide-step`) in either direction along
-the committed axis, for as long as the fingers stay down. Reversing the
-movement reverses the steps. A slide only claims the axes its binding uses,
-so a vertical-only slide leaves horizontal movement alone. When a slide and a
-swipe are bound for the same fingers and axis, the slide wins.
+**Slides.** Like a swipe, but a bound slide starts after only 1 mm, so the
+first step comes as soon as the hand moves, and it keeps firing: one step
+every `step` millimetres (the binding's own, the preset's, or `slide-step`)
+in either direction along the committed axis, for as long as the fingers
+stay down. Reversing the movement reverses the steps. A finger slipping off
+or landing late does not interrupt a running slide or add steps. A slide
+only claims the axes its binding uses, so a vertical-only slide leaves
+horizontal movement alone. When a slide and a swipe are bound for the same
+fingers and axis, the slide wins.
+
+While three or more fingers drive a bound slide or swipe, scroll events are
+dropped, including the momentum after the fingers lift, so the window under
+the pointer does not scroll at the same time. Two-finger scrolling is never
+touched.
 
 **Hold slide.** One finger rests and a second finger, landing at least
 120 ms later, moves. The moving finger drives the slide.

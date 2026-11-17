@@ -41,6 +41,9 @@ public struct RecognizerSettings: Equatable, Sendable {
     public var holdTravel: Double = 4.0
     /// Movement in millimetres before a gesture commits to an axis.
     public var motionThreshold: Double = 3.0
+    /// Movement before a bound slide starts. Lower than `motionThreshold`
+    /// so a slide reacts at once; a slide already suppresses taps.
+    public var slideThreshold: Double = 1.0
     public var swipeDistance: Double = 18.0
     public var slideStep: Double = 5.0
     public var brushMinimumSpan: TimeInterval = 0.08
@@ -91,6 +94,9 @@ public final class GestureRecognizer {
     private struct Motion {
         var fingers: Int
         var origin: Point
+        /// Position in the previous frame, to carry a slide across a change
+        /// in the number of fingers.
+        var last: Point
         var family: MotionFamily
         var phase: MotionPhase
     }
@@ -124,6 +130,13 @@ public final class GestureRecognizer {
     public var pendingTapToken: Int? { pendingTap?.token }
 
     public var isSessionActive: Bool { !tracks.isEmpty }
+
+    /// True while a slide is running, from its first step until every finger
+    /// has lifted.
+    public var isSliding: Bool {
+        if case .slide = motion?.phase { return true }
+        return false
+    }
 
     public func process(_ frame: TouchFrame, bindings: GestureBindings) -> [RecognizedGesture] {
         if tracks.isEmpty && frame.touches.isEmpty {
@@ -327,20 +340,43 @@ public final class GestureRecognizer {
 
     private func updateMotion(bindings: GestureBindings) -> [RecognizedGesture] {
         let fingers = tracks.count
-        guard var current = motion, current.fingers == fingers else {
-            if let family = motionFamily(fingers: fingers) {
-                let origin = motionPosition(fingers: fingers, family: family)
-                motion = Motion(fingers: fingers, origin: origin, family: family, phase: .pending)
-            } else {
-                motion = nil
+        guard var current = motion else {
+            startMotion(fingers: fingers)
+            return []
+        }
+
+        if current.fingers != fingers {
+            // A running slide survives a finger slipping off or landing late:
+            // the anchor moves with the jump in the centroid, so the change in
+            // fingers produces no steps and the slide carries on without
+            // waiting for a new threshold.
+            guard case .slide(let gesture, let target, let axis, let anchor) = current.phase, fingers > 0 else {
+                startMotion(fingers: fingers)
+                return []
             }
+            current.fingers = fingers
+            let position = motionPosition(fingers: fingers, family: current.family)
+            let jump = (position - current.last).component(along: axis)
+            current.phase = .slide(gesture, target, axis, anchor: anchor + jump)
+            current.last = position
+            motion = current
             return []
         }
 
         let position = motionPosition(fingers: fingers, family: current.family)
         let output = advance(&current, position: position, bindings: bindings)
+        current.last = position
         motion = current
         return output
+    }
+
+    private func startMotion(fingers: Int) {
+        guard let family = motionFamily(fingers: fingers) else {
+            motion = nil
+            return
+        }
+        let origin = motionPosition(fingers: fingers, family: family)
+        motion = Motion(fingers: fingers, origin: origin, last: origin, family: family, phase: .pending)
     }
 
     private func advance(_ motion: inout Motion, position: Point, bindings: GestureBindings) -> [RecognizedGesture] {
@@ -348,7 +384,8 @@ public final class GestureRecognizer {
 
         switch motion.phase {
         case .pending:
-            guard max(abs(delta.x), abs(delta.y)) >= settings.motionThreshold else { return [] }
+            let distance = max(abs(delta.x), abs(delta.y))
+            guard distance >= min(settings.slideThreshold, settings.motionThreshold) else { return [] }
             let axis: Axis = abs(delta.x) > abs(delta.y) ? .horizontal : .vertical
             let direction = Direction.along(axis, positive: delta.component(along: axis) > 0)
 
@@ -356,6 +393,8 @@ public final class GestureRecognizer {
                target.directions.contains(where: { $0.axis == axis }) {
                 motion.phase = .slide(slide, target, axis, anchor: motion.origin.component(along: axis))
                 suppressTaps = true
+            } else if distance < settings.motionThreshold {
+                return []
             } else if let fingers = motion.family.swipeFingers,
                       [Gesture.swipe(fingers: fingers, direction: direction), Gesture.swipe(fingers: fingers)]
                           .compactMap({ $0 }).contains(where: bindings.isBound) {

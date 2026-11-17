@@ -90,6 +90,12 @@ bool OGMTActuate(uint64_t deviceID, int32_t actuation);
 /// Posts a Dock notification such as "com.apple.expose.awake".
 bool OGDockSendNotification(CFStringRef name);
 
+/// Whether the trackpad is in the middle of a gesture that owns scrolling.
+/// Written on the multitouch thread, read by the scroll event tap; a plain
+/// atomic so neither side ever waits on the other.
+void OGSetScrollClaimed(bool claimed);
+bool OGIsScrollClaimed(void);
+
 CF_ASSUME_NONNULL_END
 
 #endif

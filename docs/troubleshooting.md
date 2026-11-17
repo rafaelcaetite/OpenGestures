@@ -28,6 +28,14 @@ macOS keeps handling its own gestures. Turn off the overlapping one in
 System Settings > Trackpad > More Gestures. `OpenGestures check` names
 each overlap.
 
+## The page scrolls during a three- or four-finger gesture
+
+macOS starts scrolling as soon as two fingers move. OpenGestures drops
+scroll events once three or more fingers drive a bound gesture, which needs
+the Accessibility permission. If scrolling still leaks through, check that
+OpenGestures is enabled in System Settings > Privacy & Security >
+Accessibility.
+
 ## Gestures stop after sleep or reconnecting a trackpad
 
 OpenGestures restarts its devices after waking and whenever a multitouch

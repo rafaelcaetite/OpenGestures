@@ -4,6 +4,21 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] - 2026-11-17
+
+### Added
+
+- Scroll events are dropped while three or more fingers drive a bound slide
+  or swipe, so a four-finger slide no longer scrolls the window under the
+  pointer. The event tap runs on its own thread and only while such a
+  gesture is bound.
+
+### Changed
+
+- A bound slide starts after 1 mm of movement instead of 3 mm.
+- A running slide carries on when a finger slips off or lands late, instead
+  of restarting and waiting for the threshold again.
+
 ## [1.1.0] - 2026-11-17
 
 ### Added
@@ -43,5 +58,6 @@ All notable changes to this project are documented here. The format follows
 - Menu bar app with an enable switch, binding list and login item.
 - `check`, `trace`, `gestures` and `actions` commands.
 
+[1.2.0]: https://github.com/rafaelcaetite/OpenGestures/releases/tag/v1.2.0
 [1.1.0]: https://github.com/rafaelcaetite/OpenGestures/releases/tag/v1.1.0
 [1.0.0]: https://github.com/rafaelcaetite/OpenGestures/releases/tag/v1.0.0

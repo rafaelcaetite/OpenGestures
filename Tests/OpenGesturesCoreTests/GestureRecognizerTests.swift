@@ -97,6 +97,56 @@ struct GestureRecognizerTests {
         #expect(harness.output == Array(repeating: .slide(.fourFingerSlide, .down), count: 2))
     }
 
+    @Test func slidesRespondWithinAMillimetre() {
+        let target = SlideTarget(directions: [.up, .down], step: 0.8)
+        let harness = Harness(bindings: StubBindings(slides: [.fourFingerSlide: target]))
+        let start: [(Int32, Double, Double)] = [(1, 15, 30), (2, 30, 30), (3, 45, 30), (4, 60, 30)]
+        harness.frame(0.00, start)
+        harness.frame(0.01, [(1, 15, 30.5), (2, 30, 30.5), (3, 45, 30.5), (4, 60, 30.5)])
+        #expect(harness.output.isEmpty)
+        harness.frame(0.02, [(1, 15, 31.1), (2, 30, 31.1), (3, 45, 31.1), (4, 60, 31.1)])
+        #expect(harness.output == [.slide(.fourFingerSlide, .up)])
+        #expect(harness.recognizer.isSliding)
+    }
+
+    @Test func slidesSurviveAFingerSlippingOff() {
+        let target = SlideTarget(directions: [.up, .down], step: 1)
+        let harness = Harness(bindings: StubBindings(slides: [.fourFingerSlide: target]))
+        // Fingers in a slanted row, so dropping one moves the centroid a lot.
+        func hand(_ y: Double, fingers: Int = 4) -> [(Int32, Double, Double)] {
+            var points: [(Int32, Double, Double)] = []
+            for finger in 1...fingers {
+                let offset = Double(finger)
+                points.append((Int32(finger), offset * 15, y + offset * 6))
+            }
+            return points
+        }
+        harness.frame(0.00, hand(20))
+        harness.frame(0.01, hand(25))
+        #expect(harness.output.count == 5)
+
+        harness.output.removeAll()
+        harness.frame(0.02, hand(25, fingers: 3))
+        #expect(harness.output.isEmpty)
+        harness.frame(0.03, hand(28, fingers: 3))
+        #expect(harness.output == Array(repeating: .slide(.fourFingerSlide, .up), count: 3))
+
+        harness.output.removeAll()
+        harness.frame(0.04, hand(28))
+        harness.frame(0.05, hand(26))
+        #expect(harness.output == Array(repeating: .slide(.fourFingerSlide, .down), count: 2))
+    }
+
+    @Test func aStillTapIsNotASlide() {
+        let target = SlideTarget(directions: [.up, .down], step: 0.8)
+        let harness = Harness(bindings: StubBindings(bound: [.fourFingerTap], slides: [.fourFingerSlide: target]))
+        let start: [(Int32, Double, Double)] = [(1, 15, 30), (2, 30, 30), (3, 45, 30), (4, 60, 30)]
+        harness.frame(0.00, start)
+        harness.frame(0.05, [(1, 15.3, 30.4), (2, 30.3, 30.4), (3, 45.3, 30.4), (4, 60.3, 30.4)])
+        harness.frame(0.10, [])
+        #expect(harness.output == [.gesture(.fourFingerTap)])
+    }
+
     @Test func slidesIgnoreTheAxisTheyAreNotBoundTo() {
         let target = SlideTarget(directions: [.up, .down], step: 5)
         let harness = Harness(bindings: StubBindings(slides: [.fourFingerSlide: target]))

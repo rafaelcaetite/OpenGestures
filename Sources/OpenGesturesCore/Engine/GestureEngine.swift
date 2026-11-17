@@ -37,6 +37,10 @@ public final class GestureEngine: @unchecked Sendable {
     /// Slide steps since the last haptic tap. Slides only come from frames,
     /// so this is only touched on the multitouch thread.
     private var slideStepsSinceHaptic = 0
+    /// Finger counts on the trackpad whose movement is bound, as a bit set.
+    /// While that many fingers are down, scrolling belongs to OpenGestures.
+    private var claimedFingerCounts: UInt8 = 0
+    private var scrollClaimed = false
 
     private let runner: ActionRunner
     private let applications: FrontmostApplication
@@ -57,6 +61,7 @@ public final class GestureEngine: @unchecked Sendable {
     public func update(_ configuration: Configuration) {
         lock.withLock {
             self.configuration = configuration
+            claimedFingerCounts = Self.motionFingerCounts(in: configuration)
             for state in states.values {
                 state.recognizer.settings = configuration.settings.recognizer
             }
@@ -85,11 +90,40 @@ public final class GestureEngine: @unchecked Sendable {
             let resolver = Resolver(engine: self, device: device.kind)
             let outputs = state.recognizer.process(state.frame, bindings: resolver)
             schedulePendingTap(state, device: device)
+            if device.kind == .trackpad {
+                let count = state.frame.touches.count
+                claimScroll(state.recognizer.isSliding || (count >= 3 && count <= 7 && claimedFingerCounts & (1 << count) != 0))
+            }
             return outputs
         }
         if !outputs.isEmpty {
             dispatch(outputs, device: device)
         }
+    }
+
+    /// True when some trackpad gesture with three or more fingers moves, so
+    /// the scroll blocker is worth running.
+    public var claimsScrolling: Bool {
+        lock.withLock { claimedFingerCounts != 0 }
+    }
+
+    private func claimScroll(_ claimed: Bool) {
+        guard claimed != scrollClaimed else { return }
+        scrollClaimed = claimed
+        OGSetScrollClaimed(claimed)
+    }
+
+    private static func motionFingerCounts(in configuration: Configuration) -> UInt8 {
+        var counts: UInt8 = 0
+        for section in configuration.sections where section.device == .trackpad {
+            for entry in section.entries {
+                let gesture = entry.key.gesture
+                guard gesture.category == .slide || gesture.category == .swipe,
+                      let fingers = gesture.fingerCount, fingers >= 3 else { continue }
+                counts |= 1 << fingers
+            }
+        }
+        return counts
     }
 
     private func state(for device: DeviceInfo) -> DeviceState {

@@ -14,6 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         engine.handleFrame(device: device, contacts: contacts, timestamp: timestamp)
     }
     private lazy var clickInterceptor = ClickInterceptor(engine: engine)
+    private let scrollBlocker = ScrollBlocker()
     private lazy var editor = GestureEditorWindow(store: store)
 
     private var configuration = Configuration()
@@ -109,7 +110,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         ) { [weak self] _ in
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 MainActor.assumeIsolated {
-                    self?.updateClickInterceptor()
+                    self?.updateEventTaps()
                     self?.updateStatusItem()
                 }
             }
@@ -121,12 +122,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private func startInput() {
         guard isEnabled else { return }
         manager.start()
-        updateClickInterceptor()
+        updateEventTaps()
     }
 
     private func stopInput() {
         manager.stop()
         clickInterceptor.stop()
+        scrollBlocker.stop()
     }
 
     private func scheduleRestart(after delay: TimeInterval) {
@@ -142,13 +144,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: item)
     }
 
-    private func updateClickInterceptor() {
-        guard isEnabled, configuration.hasClickBindings else {
+    /// Event taps exist only while a binding needs them.
+    private func updateEventTaps() {
+        if isEnabled, configuration.hasClickBindings {
+            if !clickInterceptor.start() {
+                Log.input.notice("Click gestures need Accessibility permission")
+            }
+        } else {
             clickInterceptor.stop()
-            return
         }
-        if !clickInterceptor.start() {
-            Log.input.notice("Click gestures need Accessibility permission")
+
+        if isEnabled, engine.claimsScrolling {
+            if !scrollBlocker.start() {
+                Log.input.notice("Blocking scrolling during gestures needs Accessibility permission")
+            }
+        } else {
+            scrollBlocker.stop()
         }
     }
 
@@ -169,7 +180,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             configurationError = "\(error)"
             Log.configuration.error("\(String(describing: error), privacy: .public)")
         }
-        updateClickInterceptor()
+        updateEventTaps()
         updateStatusItem()
         editor.configurationDidChange()
     }
