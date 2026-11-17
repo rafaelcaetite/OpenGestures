@@ -33,7 +33,9 @@ private final class Harness {
     }
 
     func tap(fingers: Int, at time: Double) {
-        let points = (0..<fingers).map { (Int32($0 + 1), 20.0 + Double($0) * 15, 40.0) }
+        let points: [(Int32, Double, Double)] = (0..<fingers).map { index in
+            (Int32(index + 1), 20 + Double(index) * 15, 40)
+        }
         frame(time, points)
         frame(time + 0.08, points)
         frame(time + 0.12, [])
@@ -43,8 +45,11 @@ private final class Harness {
     func move(fingers: Int, from start: Point, by delta: Point, steps: Int = 10, at time: Double = 0) {
         for step in 0...steps {
             let fraction = Double(step) / Double(steps)
-            let points = (0..<fingers).map { index in
-                (Int32(index + 1), start.x + Double(index) * 15 + delta.x * fraction, start.y + delta.y * fraction)
+            let y: Double = start.y + delta.y * fraction
+            var points: [(Int32, Double, Double)] = []
+            for index in 0..<fingers {
+                let x: Double = start.x + Double(index) * 15 + delta.x * fraction
+                points.append((Int32(index + 1), x, y))
             }
             frame(time + Double(step) * 0.01, points)
         }
