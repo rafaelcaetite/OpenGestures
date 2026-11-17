@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.2.1] - 2026-11-17
+
+### Fixed
+
+- Volume and brightness slides follow the fingers without lag. macOS takes
+  about 10 ms per synthesized media key, so a quick slide queued more than
+  half a second of keys and the overlay trailed behind. The level is now set
+  directly as the fingers move, and one key at most every 33 ms keeps the
+  system overlay in step with it.
+
 ## [1.2.0] - 2026-11-17
 
 ### Added
@@ -58,6 +68,7 @@ All notable changes to this project are documented here. The format follows
 - Menu bar app with an enable switch, binding list and login item.
 - `check`, `trace`, `gestures` and `actions` commands.
 
+[1.2.1]: https://github.com/rafaelcaetite/OpenGestures/releases/tag/v1.2.1
 [1.2.0]: https://github.com/rafaelcaetite/OpenGestures/releases/tag/v1.2.0
 [1.1.0]: https://github.com/rafaelcaetite/OpenGestures/releases/tag/v1.1.0
 [1.0.0]: https://github.com/rafaelcaetite/OpenGestures/releases/tag/v1.0.0

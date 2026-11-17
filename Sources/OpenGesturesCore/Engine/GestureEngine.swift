@@ -43,6 +43,7 @@ public final class GestureEngine: @unchecked Sendable {
     private var scrollClaimed = false
 
     private let runner: ActionRunner
+    private let levels = LevelAdjuster()
     private let applications: FrontmostApplication
 
     /// When false, gestures are recognized and reported but nothing runs.
@@ -210,7 +211,12 @@ public final class GestureEngine: @unchecked Sendable {
                 feedback(action.haptic ?? configuration.settings.hapticFeedback, device: device, strong: true)
             case (.slide(let slide), let direction?):
                 guard let action = slide.actions[direction] else { continue }
-                runner.perform(action, context: context)
+                if action.steps.count == 1, case .builtIn(let builtIn) = action.steps[0],
+                   let level = LevelAdjuster.Level(builtIn) {
+                    levels.adjust(level, up: builtIn == .volumeUpFine || builtIn == .brightnessUpFine)
+                } else {
+                    runner.perform(action, context: context)
+                }
                 slideStepsSinceHaptic += 1
                 if slideStepsSinceHaptic >= slide.detent {
                     slideStepsSinceHaptic = 0

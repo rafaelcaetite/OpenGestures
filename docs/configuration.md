@@ -210,6 +210,10 @@ four-finger-slide = "volume"
 
 The level presets move in quarter steps, 64 from bottom to top, so the
 whole range takes about 5 cm. Their haptic tap comes once per whole step.
+They set the output volume (Core Audio) or the built-in display's
+brightness directly, so the level follows the fingers at once, and send a
+media key at most every 33 ms to keep the system overlay in step. Outputs
+without a settable volume fall back to one media key per step.
 
 Or a table with any of `up`, `down`, `left` and `right`, each taking any
 binding value, plus optional `step`, `haptic` and `preset`. Keys in the

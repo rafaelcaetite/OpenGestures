@@ -100,6 +100,18 @@ menu interaction. With the trackpad untouched it uses no CPU.
 positions and timestamps, so every gesture can be exercised without
 hardware. `OpenGestures trace` is the complement on a real device.
 
+## Volume and brightness
+
+Synthesized media keys are slow to take effect: macOS handles each in about
+10 ms, so a fast slide that produces sixty quarter steps would queue more
+than half a second of keys. `LevelAdjuster` accumulates steps from the
+multitouch thread and, on its own queue, sets the level directly (Core Audio
+for volume, DisplayServices for brightness). It keeps the target itself
+rather than reading it back, and every 33 ms at most sets the level one
+quarter step short and sends the key that covers the rest, which is what
+draws the system overlay. It waits for that key to land before applying
+further steps, so the two never race.
+
 ## Gesture editor
 
 The editor is a SwiftUI window owned by `GestureEditorWindow`. It is built
