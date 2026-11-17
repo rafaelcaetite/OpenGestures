@@ -23,6 +23,7 @@ public final class GestureEngine: @unchecked Sendable {
         let recognizer: GestureRecognizer
         var frame = TouchFrame(timestamp: 0, touches: [])
         var scheduledToken: Int?
+        var isTouching = false
 
         init(kind: DeviceKind, settings: RecognizerSettings) {
             recognizer = GestureRecognizer(device: kind, settings: settings)
@@ -41,8 +42,9 @@ public final class GestureEngine: @unchecked Sendable {
     /// While that many fingers are down, scrolling belongs to OpenGestures.
     private var claimedFingerCounts: UInt8 = 0
     private var scrollClaimed = false
-    /// Devices with fingers on them, by identifier.
-    private var touchingDevices: Set<UInt64> = []
+    /// The device of the previous frame. Nearly every frame comes from the
+    /// same device as the one before, so this skips the dictionary lookup.
+    private var lastState: (id: UInt64, state: DeviceState)?
     /// Modifiers pressed by a running slide, released when it ends.
     private var heldModifiers: Modifiers = []
 
@@ -89,7 +91,10 @@ public final class GestureEngine: @unchecked Sendable {
                     normalized: normalized
                 ))
             }
-            noteTouching(device, state.frame.touches.isEmpty == false)
+            if state.isTouching == state.frame.touches.isEmpty {
+                state.isTouching.toggle()
+                publishTouchingDevices()
+            }
             if state.frame.touches.isEmpty && !state.recognizer.isSessionActive {
                 return []
             }
@@ -113,19 +118,13 @@ public final class GestureEngine: @unchecked Sendable {
         lock.withLock { claimedFingerCounts != 0 }
     }
 
-    private func noteTouching(_ device: DeviceInfo, _ touching: Bool) {
-        guard touching != touchingDevices.contains(device.id) else { return }
-        if touching {
-            touchingDevices.insert(device.id)
-        } else {
-            touchingDevices.remove(device.id)
-        }
+    /// Only called when a device starts or stops being touched.
+    private func publishTouchingDevices() {
         var bits: Int32 = 0
-        for id in touchingDevices {
-            switch devices[id]?.kind {
-            case .trackpad?: bits |= Int32(OGTouchingTrackpad)
-            case .mouse?: bits |= Int32(OGTouchingMouse)
-            case nil: break
+        for state in states.values where state.isTouching {
+            switch state.recognizer.device {
+            case .trackpad: bits |= Int32(OGTouchingTrackpad)
+            case .mouse: bits |= Int32(OGTouchingMouse)
             }
         }
         OGSetTouchingDevices(bits)
@@ -151,12 +150,17 @@ public final class GestureEngine: @unchecked Sendable {
     }
 
     private func state(for device: DeviceInfo) -> DeviceState {
+        if let last = lastState, last.id == device.id {
+            return last.state
+        }
         if let state = states[device.id] {
+            lastState = (device.id, state)
             return state
         }
         let state = DeviceState(kind: device.kind, settings: configuration.settings.recognizer)
         states[device.id] = state
         devices[device.id] = device
+        lastState = (device.id, state)
         return state
     }
 

@@ -342,12 +342,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 }
 
 /// The most recent gesture, written on the multitouch thread and read when
-/// the menu opens.
+/// the menu opens. Recording only stores the event; the text is built when
+/// the menu asks for it, so a slide does not format a string per step.
 private final class LastEvent: @unchecked Sendable {
     private let lock = UnfairLock()
-    private var value: String?
+    private var event: GestureEngine.Event?
 
     func record(_ event: GestureEngine.Event) {
+        lock.withLock { self.event = event }
+    }
+
+    var description: String? {
+        guard let event = lock.withLock({ event }) else { return nil }
         var text = event.gesture.rawValue
         if let direction = event.direction {
             text += " \(direction.rawValue)"
@@ -355,10 +361,6 @@ private final class LastEvent: @unchecked Sendable {
         if event.binding == nil {
             text += " (not bound)"
         }
-        lock.withLock { value = text }
-    }
-
-    var description: String? {
-        lock.withLock { value }
+        return text
     }
 }

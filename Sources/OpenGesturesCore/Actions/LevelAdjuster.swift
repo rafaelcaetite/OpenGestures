@@ -2,6 +2,7 @@ import AudioToolbox
 import CoreAudio
 import CoreGraphics
 import Foundation
+import os
 import IOKit.hidsystem
 
 /// Moves volume and display brightness by quarter steps, as fast as a
@@ -159,6 +160,10 @@ final class LevelAdjuster: @unchecked Sendable {
 }
 
 /// The main volume of the default output device, through Core Audio.
+///
+/// Finding the default device costs about half a millisecond, more than the
+/// read itself, so the device and whether its volume can be set are kept
+/// until Core Audio reports that the default output changed.
 private enum SystemVolume {
     private static let volumeAddress = AudioObjectPropertyAddress(
         mSelector: kAudioHardwareServiceDeviceProperty_VirtualMainVolume,
@@ -166,7 +171,29 @@ private enum SystemVolume {
         mElement: kAudioObjectPropertyElementMain
     )
 
-    private static func device() -> AudioObjectID? {
+    private struct Output {
+        var device: AudioObjectID
+        var settable: Bool
+    }
+
+    private static let cache = OSAllocatedUnfairLock<Output?>(initialState: nil)
+
+    private static let watchDefaultOutput: Void = {
+        var address = AudioObjectPropertyAddress(
+            mSelector: kAudioHardwarePropertyDefaultOutputDevice,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        AudioObjectAddPropertyListenerBlock(AudioObjectID(kAudioObjectSystemObject), &address, nil) { _, _ in
+            cache.withLock { $0 = nil }
+        }
+    }()
+
+    private static func output() -> Output? {
+        _ = watchDefaultOutput
+        if let cached = cache.withLock({ $0 }) {
+            return cached
+        }
         var device = AudioObjectID(kAudioObjectUnknown)
         var size = UInt32(MemoryLayout<AudioObjectID>.size)
         var address = AudioObjectPropertyAddress(
@@ -175,28 +202,30 @@ private enum SystemVolume {
             mElement: kAudioObjectPropertyElementMain
         )
         let status = AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &address, 0, nil, &size, &device)
-        return status == noErr && device != kAudioObjectUnknown ? device : nil
+        guard status == noErr, device != kAudioObjectUnknown else { return nil }
+        var volume = volumeAddress
+        var settable: DarwinBoolean = false
+        let canSet = AudioObjectIsPropertySettable(device, &volume, &settable) == noErr && settable.boolValue
+        let output = Output(device: device, settable: canSet)
+        cache.withLock { $0 = output }
+        return output
     }
 
     /// Nil when the output has no volume the system can set.
     static func get() -> Float? {
-        guard let device = device() else { return nil }
+        guard let output = output(), output.settable else { return nil }
         var address = volumeAddress
-        var settable: DarwinBoolean = false
-        guard AudioObjectIsPropertySettable(device, &address, &settable) == noErr, settable.boolValue else {
-            return nil
-        }
         var volume: Float32 = 0
         var size = UInt32(MemoryLayout<Float32>.size)
-        guard AudioObjectGetPropertyData(device, &address, 0, nil, &size, &volume) == noErr else { return nil }
+        guard AudioObjectGetPropertyData(output.device, &address, 0, nil, &size, &volume) == noErr else { return nil }
         return volume
     }
 
     static func set(_ value: Float) {
-        guard let device = device() else { return }
+        guard let output = output(), output.settable else { return }
         var address = volumeAddress
         var volume = Float32(value)
-        AudioObjectSetPropertyData(device, &address, 0, nil, UInt32(MemoryLayout<Float32>.size), &volume)
+        AudioObjectSetPropertyData(output.device, &address, 0, nil, UInt32(MemoryLayout<Float32>.size), &volume)
     }
 }
 

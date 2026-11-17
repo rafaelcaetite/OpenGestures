@@ -115,8 +115,14 @@ public struct BindingSection: Sendable {
 
 public struct Configuration: Sendable {
     public var settings = Settings()
-    public var sections: [BindingSection] = []
+    public var sections: [BindingSection] = [] {
+        didSet { lookupOrder = Self.lookupOrder(of: sections) }
+    }
     public var warnings: [String] = []
+    /// Indices into `sections` for each device, most specific scope first.
+    /// Worked out once when sections change, so looking up a binding, which
+    /// happens for every step of a slide, allocates nothing.
+    private var lookupOrder: [[Int]] = Array(repeating: [], count: DeviceKind.allCases.count)
 
     public init() {}
 
@@ -131,26 +137,44 @@ public struct Configuration: Sendable {
         application: ApplicationIdentity?,
         functionKeyDown: Bool
     ) -> Binding? {
-        let candidates = sections(for: device, application: application)
+        let order = lookupOrder[Self.slot(device)]
         if functionKeyDown {
             let key = GestureKey(gesture, requiresFunctionKey: true)
-            for section in candidates {
-                if let binding = section.binding(for: key) { return binding }
+            for index in order where sections[index].scope.matches(application) {
+                if let binding = sections[index].binding(for: key) { return binding }
             }
         }
         let key = GestureKey(gesture)
-        for section in candidates {
-            if let binding = section.binding(for: key) { return binding }
+        for index in order where sections[index].scope.matches(application) {
+            if let binding = sections[index].binding(for: key) { return binding }
         }
         return nil
     }
 
-    func sections(for device: DeviceKind, application: ApplicationIdentity?) -> [BindingSection] {
-        let matching = sections.filter { $0.device == device && $0.scope.matches(application) }
-        let only = matching.filter { if case .only = $0.scope { true } else { false } }
-        let except = matching.filter { if case .except = $0.scope { true } else { false } }
-        let global = matching.filter { $0.scope == .global }
-        return only + except + global
+    /// Sections limited to some applications come first, then sections that
+    /// exclude some, then global ones; file order within each group.
+    private static func lookupOrder(of sections: [BindingSection]) -> [[Int]] {
+        func rank(_ scope: ApplicationScope) -> Int {
+            switch scope {
+            case .only: 0
+            case .except: 1
+            case .global: 2
+            }
+        }
+        var order = Array(repeating: [Int](), count: DeviceKind.allCases.count)
+        for device in DeviceKind.allCases {
+            order[slot(device)] = sections.indices
+                .filter { sections[$0].device == device }
+                .sorted { (rank(sections[$0].scope), $0) < (rank(sections[$1].scope), $1) }
+        }
+        return order
+    }
+
+    private static func slot(_ device: DeviceKind) -> Int {
+        switch device {
+        case .trackpad: 0
+        case .mouse: 1
+        }
     }
 
     public var hasClickBindings: Bool {
