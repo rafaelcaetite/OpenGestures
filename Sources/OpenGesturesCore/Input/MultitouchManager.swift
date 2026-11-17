@@ -18,8 +18,12 @@ public final class MultitouchManager: @unchecked Sendable {
         var info: DeviceInfo
     }
 
-    /// Magic Mouse family identifiers. Everything else is treated as a trackpad.
+    /// Magic Mouse family identifiers, used only when the registry has no
+    /// product name. Family 113 is also the built-in trackpad of some
+    /// MacBook Pros, so built-in devices never count as a mouse.
     private static let mouseFamilies: Set<Int32> = [112, 113]
+    /// The Touch Bar reports itself as a multitouch device.
+    private static let touchBarFamily: Int32 = 176
 
     private let handler: FrameHandler
     private let lock = UnfairLock()
@@ -66,7 +70,7 @@ public final class MultitouchManager: @unchecked Sendable {
             devices = (0..<CFArrayGetCount(list)).compactMap { index in
                 guard let raw = CFArrayGetValueAtIndex(list, index) else { return nil }
                 let reference = UnsafeMutableRawPointer(mutating: raw)
-                return Device(reference: reference, info: Self.describe(reference))
+                return Self.describe(reference).map { Device(reference: reference, info: $0) }
             }
             for device in devices {
                 OGMTStartDevice(device.reference)
@@ -145,19 +149,55 @@ public final class MultitouchManager: @unchecked Sendable {
         handler(info, UnsafeBufferPointer(start: contacts, count: contacts == nil ? 0 : count), timestamp)
     }
 
-    private static func describe(_ reference: OGMTDeviceRef) -> DeviceInfo {
+    /// Nil for surfaces that are not for gestures, such as the Touch Bar.
+    private static func describe(_ reference: OGMTDeviceRef) -> DeviceInfo? {
+        let id = OGMTDeviceID(reference)
         let family = OGMTDeviceFamilyID(reference)
+        let isBuiltIn = OGMTDeviceIsBuiltIn(reference)
+        let registry = RegistryDescription(multitouchID: id)
+
+        let kind: DeviceKind
+        if let registry {
+            if registry.product.localizedCaseInsensitiveContains("touch bar") || (registry.rows ?? 99) <= 4 {
+                return nil
+            }
+            kind = !isBuiltIn && registry.product.localizedCaseInsensitiveContains("mouse") ? .mouse : .trackpad
+        } else {
+            if family == touchBarFamily { return nil }
+            kind = !isBuiltIn && mouseFamilies.contains(family) ? .mouse : .trackpad
+        }
+
         var width = 0.0, height = 0.0
         if !OGMTDeviceSurfaceSize(reference, &width, &height) {
             (width, height) = (130, 80)
         }
-        return DeviceInfo(
-            id: OGMTDeviceID(reference),
-            kind: mouseFamilies.contains(family) ? .mouse : .trackpad,
-            familyID: family,
-            isBuiltIn: OGMTDeviceIsBuiltIn(reference),
-            width: width,
-            height: height
-        )
+        return DeviceInfo(id: id, kind: kind, familyID: family, isBuiltIn: isBuiltIn, width: width, height: height)
+    }
+}
+
+/// What the I/O Registry says about a multitouch device: its product name,
+/// such as "Magic Mouse" or "Apple Internal Keyboard / Trackpad", and its
+/// sensor rows. More reliable than family identifiers, which differ between
+/// models and, for 113, mean a mouse on some and a trackpad on others.
+private struct RegistryDescription {
+    var product: String
+    var rows: Int?
+
+    init?(multitouchID: UInt64) {
+        guard let matching = IOServiceMatching("AppleMultitouchDevice") as NSMutableDictionary? else { return nil }
+        matching["IOPropertyMatch"] = ["Multitouch ID": NSNumber(value: multitouchID)]
+        let service = IOServiceGetMatchingService(kIOMainPortDefault, matching)
+        guard service != 0 else { return nil }
+        defer { IOObjectRelease(service) }
+
+        func property(_ key: String) -> Any? {
+            IORegistryEntrySearchCFProperty(
+                service, kIOServicePlane, key as CFString, kCFAllocatorDefault,
+                IOOptionBits(kIORegistryIterateRecursively | kIORegistryIterateParents)
+            )
+        }
+        guard let product = property("Product") as? String else { return nil }
+        self.product = product
+        rows = (property("Sensor Rows") as? NSNumber)?.intValue
     }
 }
