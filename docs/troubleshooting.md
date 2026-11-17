@@ -37,11 +37,15 @@ menu and report the issue with the output of `log show --last 10m
 
 ## A slide is too fast or too slow
 
-Lower `step` for more steps per distance, raise it for fewer:
+Move the **Sensitivity** slider in the gesture editor, or set `step` in the
+file. Lower values mean more steps per distance:
 
 ```toml
-four-finger-slide = { preset = "volume", step = 3 }
+four-finger-slide = { preset = "volume", step = 0.5 }
 ```
+
+Volume, brightness and keyboard backlight move in quarter steps, so the
+default 0.8 mm covers the whole range in about 5 cm.
 
 or change `slide-step` in `[GENERAL]` for every slide.
 

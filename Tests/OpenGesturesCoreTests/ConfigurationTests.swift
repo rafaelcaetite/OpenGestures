@@ -85,7 +85,7 @@ struct ConfigurationTests {
             Issue.record("expected a slide"); return
         }
         #expect(Set(volume.actions.keys) == [.up, .down])
-        #expect(configuration.slideTarget(for: volume).step == 5)
+        #expect(configuration.slideTarget(for: volume).step == 0.8)
 
         guard case .slide(let tabs) = section.binding(for: GestureKey(.threeFingerSlide)) else {
             Issue.record("expected a slide"); return

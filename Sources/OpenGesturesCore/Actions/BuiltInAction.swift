@@ -28,6 +28,12 @@ public enum BuiltInAction: String, CaseIterable, Sendable {
     case brightnessDown = "brightness-down"
     case keyboardBacklightUp = "keyboard-backlight-up"
     case keyboardBacklightDown = "keyboard-backlight-down"
+    case volumeUpFine = "volume-up-fine"
+    case volumeDownFine = "volume-down-fine"
+    case brightnessUpFine = "brightness-up-fine"
+    case brightnessDownFine = "brightness-down-fine"
+    case keyboardBacklightUpFine = "keyboard-backlight-up-fine"
+    case keyboardBacklightDownFine = "keyboard-backlight-down-fine"
 
     case middleClick = "middle-click"
 
@@ -56,6 +62,12 @@ public enum BuiltInAction: String, CaseIterable, Sendable {
         case .brightnessDown: "Lower display brightness"
         case .keyboardBacklightUp: "Raise keyboard backlight"
         case .keyboardBacklightDown: "Lower keyboard backlight"
+        case .volumeUpFine: "Raise the volume a quarter step"
+        case .volumeDownFine: "Lower the volume a quarter step"
+        case .brightnessUpFine: "Raise display brightness a quarter step"
+        case .brightnessDownFine: "Lower display brightness a quarter step"
+        case .keyboardBacklightUpFine: "Raise keyboard backlight a quarter step"
+        case .keyboardBacklightDownFine: "Lower keyboard backlight a quarter step"
         case .middleClick: "Middle click at the pointer (same as mouse-3)"
         }
     }

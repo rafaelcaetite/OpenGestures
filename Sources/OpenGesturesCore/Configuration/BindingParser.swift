@@ -147,8 +147,8 @@ enum BindingParser {
             throw BindingError("a slide needs a preset or at least one of up, down, left and right")
         }
         if let step = table["step"] {
-            guard let millimetres = step.doubleValue, (0.5...100).contains(millimetres) else {
-                throw BindingError("step is a distance in millimetres between 0.5 and 100")
+            guard let millimetres = step.doubleValue, SlideBinding.stepRange.contains(millimetres) else {
+                throw BindingError("step is a distance in millimetres between 0.2 and 100")
             }
             binding.step = millimetres
         }
@@ -166,7 +166,7 @@ enum BindingParser {
         for (direction, text) in preset.actions {
             actions[direction] = ActionBinding(steps: [try parseStep(text)], source: text)
         }
-        return SlideBinding(actions: actions, step: preset.step, source: preset.rawValue)
+        return SlideBinding(actions: actions, step: preset.step, detent: preset.detent, source: preset.rawValue)
     }
 
     private static func rejectUnknownKeys(in table: TOMLTable, allowed: Set<String>) throws(BindingError) {

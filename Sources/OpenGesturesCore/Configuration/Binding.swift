@@ -48,15 +48,30 @@ public struct SlideBinding: Hashable, Sendable {
     public var actions: [Direction: ActionBinding]
     /// Millimetres between steps; the general slide-step setting when nil.
     public var step: Double?
+    /// Steps between two haptic taps. Fine-grained presets tap once per
+    /// whole step instead of on every quarter.
+    public var detent: Int
     public var haptic: Bool?
     public var source: String
 
-    public init(actions: [Direction: ActionBinding], step: Double? = nil, haptic: Bool? = nil, source: String) {
+    public init(
+        actions: [Direction: ActionBinding],
+        step: Double? = nil,
+        detent: Int = 1,
+        haptic: Bool? = nil,
+        source: String
+    ) {
         self.actions = actions
         self.step = step
+        self.detent = max(1, detent)
         self.haptic = haptic
         self.source = source
     }
+}
+
+extension SlideBinding {
+    /// Accepted step distances, in millimetres.
+    public static let stepRange: ClosedRange<Double> = 0.2...100
 }
 
 public enum Binding: Hashable, Sendable {
@@ -85,9 +100,9 @@ public enum SlidePreset: String, CaseIterable, Sendable {
 
     public var actions: [Direction: String] {
         switch self {
-        case .volume: [.up: "volume-up", .down: "volume-down"]
-        case .brightness: [.up: "brightness-up", .down: "brightness-down"]
-        case .keyboardBacklight: [.up: "keyboard-backlight-up", .down: "keyboard-backlight-down"]
+        case .volume: [.up: "volume-up-fine", .down: "volume-down-fine"]
+        case .brightness: [.up: "brightness-up-fine", .down: "brightness-down-fine"]
+        case .keyboardBacklight: [.up: "keyboard-backlight-up-fine", .down: "keyboard-backlight-down-fine"]
         case .zoom: [.up: "cmd+=", .down: "cmd+-"]
         case .tabs: [.right: "next-tab", .left: "previous-tab"]
         case .history: [.left: "cmd+[", .right: "cmd+]"]
@@ -97,15 +112,34 @@ public enum SlidePreset: String, CaseIterable, Sendable {
         }
     }
 
-    /// Step distance in millimetres, when the preset needs a coarser one than
-    /// the general setting.
+    /// Step distance in millimetres, when the preset needs its own instead
+    /// of the general setting.
+    ///
+    /// Level presets move in quarter steps, 64 from bottom to top, so 0.8 mm
+    /// covers the whole range in about 5 cm: one stroke of the hand.
     public var step: Double? {
         switch self {
-        case .volume, .brightness, .keyboardBacklight: nil
+        case .volume, .brightness, .keyboardBacklight: 0.8
         case .zoom: 8
         case .undo: 10
         case .tabs: 15
         case .history, .spaces, .tracks: 25
+        }
+    }
+
+    /// Quarter-step presets tap the trackpad once per whole step.
+    public var detent: Int {
+        switch self {
+        case .volume, .brightness, .keyboardBacklight: 4
+        default: 1
+        }
+    }
+
+    /// Steps from the lowest to the highest level, for presets that set a level.
+    public var levels: Int? {
+        switch self {
+        case .volume, .brightness, .keyboardBacklight: 64
+        default: nil
         }
     }
 

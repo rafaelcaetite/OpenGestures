@@ -45,13 +45,17 @@ enum EventPoster {
 
     /// Media and brightness keys travel as system-defined events, which is
     /// also what makes macOS show its volume and brightness overlays.
-    static func postSystemKey(_ key: Int32) {
+    ///
+    /// A `fine` key carries Option and Shift, which macOS treats as a quarter
+    /// of a step, the same as pressing those modifiers with the real key.
+    static func postSystemKey(_ key: Int32, fine: Bool = false) {
+        let modifiers: NSEvent.ModifierFlags = fine ? [.option, .shift] : []
         for down in [true, false] {
             let state = down ? 0xA : 0xB
             let event = NSEvent.otherEvent(
                 with: .systemDefined,
                 location: .zero,
-                modifierFlags: NSEvent.ModifierFlags(rawValue: UInt(state << 8)),
+                modifierFlags: NSEvent.ModifierFlags(rawValue: UInt(state << 8)).union(modifiers),
                 timestamp: 0,
                 windowNumber: 0,
                 context: nil,

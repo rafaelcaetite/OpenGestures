@@ -34,6 +34,9 @@ public final class GestureEngine: @unchecked Sendable {
     private var configuration: Configuration
     private var states: [UInt64: DeviceState] = [:]
     private var devices: [UInt64: DeviceInfo] = [:]
+    /// Slide steps since the last haptic tap. Slides only come from frames,
+    /// so this is only touched on the multitouch thread.
+    private var slideStepsSinceHaptic = 0
 
     private let runner: ActionRunner
     private let applications: FrontmostApplication
@@ -174,7 +177,11 @@ public final class GestureEngine: @unchecked Sendable {
             case (.slide(let slide), let direction?):
                 guard let action = slide.actions[direction] else { continue }
                 runner.perform(action, context: context)
-                feedback(slide.haptic ?? action.haptic ?? configuration.settings.hapticFeedback, device: device, strong: false)
+                slideStepsSinceHaptic += 1
+                if slideStepsSinceHaptic >= slide.detent {
+                    slideStepsSinceHaptic = 0
+                    feedback(slide.haptic ?? action.haptic ?? configuration.settings.hapticFeedback, device: device, strong: false)
+                }
             default:
                 continue
             }

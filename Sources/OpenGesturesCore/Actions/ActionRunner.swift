@@ -89,6 +89,12 @@ public final class ActionRunner: @unchecked Sendable {
         case .brightnessDown: EventPoster.postSystemKey(NX_KEYTYPE_BRIGHTNESS_DOWN)
         case .keyboardBacklightUp: EventPoster.postSystemKey(NX_KEYTYPE_ILLUMINATION_UP)
         case .keyboardBacklightDown: EventPoster.postSystemKey(NX_KEYTYPE_ILLUMINATION_DOWN)
+        case .volumeUpFine: EventPoster.postSystemKey(NX_KEYTYPE_SOUND_UP, fine: true)
+        case .volumeDownFine: EventPoster.postSystemKey(NX_KEYTYPE_SOUND_DOWN, fine: true)
+        case .brightnessUpFine: EventPoster.postSystemKey(NX_KEYTYPE_BRIGHTNESS_UP, fine: true)
+        case .brightnessDownFine: EventPoster.postSystemKey(NX_KEYTYPE_BRIGHTNESS_DOWN, fine: true)
+        case .keyboardBacklightUpFine: EventPoster.postSystemKey(NX_KEYTYPE_ILLUMINATION_UP, fine: true)
+        case .keyboardBacklightDownFine: EventPoster.postSystemKey(NX_KEYTYPE_ILLUMINATION_DOWN, fine: true)
         case .middleClick: EventPoster.click(button: 3)
         }
     }

@@ -124,7 +124,7 @@ dominant axis, and it fires once when it has travelled `swipe-distance`
 any-direction form.
 
 **Slides.** Same start as a swipe, but a slide keeps firing: one step every
-`slide-step` (5 mm, or the binding's own `step`) in either direction along
+`step` millimetres (the binding's own, the preset's, or `slide-step`) in either direction along
 the committed axis, for as long as the fingers stay down. Reversing the
 movement reverses the steps. A slide only claims the axes its binding uses,
 so a vertical-only slide leaves horizontal movement alone. When a slide and a

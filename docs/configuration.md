@@ -46,7 +46,7 @@ edge-size = 0.15
 | `tap-duration` | `300` | 50–1000 ms | Longest a finger may stay down and still tap. |
 | `double-tap-interval` | `300` | 100–1000 ms | Longest gap between the two taps of a double tap. |
 | `swipe-distance` | `18` | 5–80 mm | How far a swipe travels before it fires. |
-| `slide-step` | `5` | 0.5–100 mm | Distance between two steps of a slide, unless the binding sets its own. |
+| `slide-step` | `5` | 0.2–100 mm | Distance between two steps of a slide, unless the binding sets its own. |
 | `edge-size` | `0.15` | 0.05–0.4 | Width of the edge zones for area clicks, as a fraction of the surface. |
 
 ## Sections
@@ -87,7 +87,8 @@ four-finger-tap = ["cmd+a", "cmd+c"]                        # A sequence
 index-to-pinky = { action = "cmd+shift+4", sound = "Pop" }  # With options
 ```
 
-A comment after a binding is shown next to it under **Bindings** in the menu.
+A comment written after a binding is kept when the gesture editor changes
+that binding.
 
 **Sequences** run their steps in order. `wait:MS` pauses between steps; the
 waits in one sequence may add up to ten seconds. Bindings never run
@@ -182,6 +183,7 @@ triggered them:
 | `mute`, `volume-up`, `volume-down` | Volume keys, with the system overlay |
 | `brightness-up`, `brightness-down` | Display brightness keys |
 | `keyboard-backlight-up`, `keyboard-backlight-down` | Keyboard backlight keys |
+| `volume-up-fine`, `volume-down-fine`, `brightness-up-fine`, `brightness-down-fine`, `keyboard-backlight-up-fine`, `keyboard-backlight-down-fine` | A quarter of a step, like pressing the key with ⌥⇧ |
 | `middle-click` | Middle click at the pointer |
 
 ## Slides
@@ -196,9 +198,9 @@ four-finger-slide = "volume"
 
 | Preset | Up / right | Down / left | Step |
 | --- | --- | --- | --- |
-| `volume` | `volume-up` | `volume-down` | `slide-step` |
-| `brightness` | `brightness-up` | `brightness-down` | `slide-step` |
-| `keyboard-backlight` | `keyboard-backlight-up` | `keyboard-backlight-down` | `slide-step` |
+| `volume` | `volume-up-fine` | `volume-down-fine` | 0.8 mm |
+| `brightness` | `brightness-up-fine` | `brightness-down-fine` | 0.8 mm |
+| `keyboard-backlight` | `keyboard-backlight-up-fine` | `keyboard-backlight-down-fine` | 0.8 mm |
 | `zoom` | `cmd+=` | `cmd+-` | 8 mm |
 | `undo` | right: `cmd+shift+z` | left: `cmd+z` | 10 mm |
 | `tabs` | right: `next-tab` | left: `previous-tab` | 15 mm |
@@ -206,13 +208,16 @@ four-finger-slide = "volume"
 | `spaces` | right: `ctrl+right` | left: `ctrl+left` | 25 mm |
 | `tracks` | right: `next-track` | left: `previous-track` | 25 mm |
 
+The level presets move in quarter steps, 64 from bottom to top, so the
+whole range takes about 5 cm. Their haptic tap comes once per whole step.
+
 Or a table with any of `up`, `down`, `left` and `right`, each taking any
 binding value, plus optional `step`, `haptic` and `preset`. Keys in the
 table override the preset:
 
 ```toml
 three-finger-slide = { up = "cmd+=", down = "cmd+-", step = 6 }
-hold-slide = { preset = "volume", step = 3, haptic = false }
+hold-slide = { preset = "volume", step = 1.5, haptic = false }
 ```
 
 The first movement past 3 mm decides the axis. If the binding has no

@@ -77,7 +77,7 @@ public enum ConfigurationParser {
             case "swipe-distance":
                 settings.recognizer.swipeDistance = try number(in: 5...80, unit: "millimetres")
             case "slide-step":
-                settings.recognizer.slideStep = try number(in: 0.5...100, unit: "millimetres")
+                settings.recognizer.slideStep = try number(in: SlideBinding.stepRange, unit: "millimetres")
             case "edge-size":
                 settings.edgeSize = try number(in: 0.05...0.4, unit: "fractions of the surface")
             default:
