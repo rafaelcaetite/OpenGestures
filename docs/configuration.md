@@ -219,7 +219,7 @@ four-finger-slide = "volume"
 | `history` | right: `cmd+]` | left: `cmd+[` | 25 mm |
 | `spaces` | right: `ctrl+right` | left: `ctrl+left` | 25 mm |
 | `tracks` | right: `next-track` | left: `previous-track` | 25 mm |
-| `apps` | right: `next-app` | left: `previous-app` | 25 mm |
+| `apps` | right: `tab` | left: `shift+tab` | 15 mm, holding ⌘ |
 
 The level presets move in quarter steps, 64 from bottom to top, so the
 whole range takes about 5 cm. Their haptic tap comes once per whole step.
@@ -228,13 +228,20 @@ brightness directly, so the level follows the fingers at once, and send a
 media key at most every 33 ms to keep the system overlay in step. Outputs
 without a settable volume fall back to one media key per step.
 
+`apps` works like the Command-Tab switcher: the first step holds Command
+and opens the switcher, each further step moves the selection, and lifting
+the fingers releases Command and switches to the selected application.
+
 Or a table with any of `up`, `down`, `left` and `right`, each taking any
-binding value, plus optional `step`, `haptic` and `preset`. Keys in the
+binding value, plus optional `step`, `haptic`, `preset` and `hold`. `hold`
+names modifier keys pressed from the first step until the fingers lift,
+such as `"cmd"` or `"cmd+shift"`. Keys in the
 table override the preset:
 
 ```toml
 three-finger-slide = { up = "cmd+=", down = "cmd+-", step = 6 }
 hold-slide = { preset = "volume", step = 1.5, haptic = false }
+four-finger-slide = { left = "shift+`", right = "`", hold = "cmd" }  # Windows of the app
 ```
 
 The first movement past 3 mm decides the axis. If the binding has no

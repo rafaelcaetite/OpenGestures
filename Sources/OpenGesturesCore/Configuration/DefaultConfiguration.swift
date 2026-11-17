@@ -46,6 +46,9 @@ dominant-hand = "right"     # Decides index-to-pinky vs pinky-to-index
 # Bindings that only apply while Fn is held:
 # fn+four-finger-slide = "brightness"
 
+# Three fingers left or right through the application switcher (⌘⇥):
+# three-finger-slide = "apps"
+
 # A slide can drive any pair of actions:
 # three-finger-slide = { left = "cmd+z", right = "cmd+shift+z", step = 10 }
 

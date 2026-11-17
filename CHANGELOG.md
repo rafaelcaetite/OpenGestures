@@ -4,6 +4,19 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.0] - 2026-11-17
+
+### Changed
+
+- The `apps` slide preset drives the Command-Tab switcher, so the target
+  application is visible while choosing: Command is held from the first
+  step, each step moves the selection, and lifting the fingers switches.
+
+### Added
+
+- Slides take `hold`, modifier keys held from the first step until the
+  fingers lift. They are released as well if input stops mid-slide.
+
 ## [1.3.0] - 2026-11-17
 
 ### Added
@@ -81,6 +94,7 @@ All notable changes to this project are documented here. The format follows
 - Menu bar app with an enable switch, binding list and login item.
 - `check`, `trace`, `gestures` and `actions` commands.
 
+[1.4.0]: https://github.com/rafaelcaetite/OpenGestures/releases/tag/v1.4.0
 [1.3.0]: https://github.com/rafaelcaetite/OpenGestures/releases/tag/v1.3.0
 [1.2.1]: https://github.com/rafaelcaetite/OpenGestures/releases/tag/v1.2.1
 [1.2.0]: https://github.com/rafaelcaetite/OpenGestures/releases/tag/v1.2.0

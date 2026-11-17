@@ -168,6 +168,49 @@ struct ScrollingAndApplicationTests {
         }
         #expect(right.steps == [.builtIn(.nextApp)])
         #expect(last.steps == [.builtIn(.lastApp)])
-        #expect(slide.actions[.left]?.steps == [.builtIn(.previousApp)])
+        // The apps slide drives the application switcher: Command stays down
+        // for the whole slide, and each step is a Tab or Shift-Tab.
+        #expect(slide.hold == .command)
+        #expect(slide.actions[.right]?.steps == [.keystroke(Keystroke(key: .code(48), modifiers: []))])
+        #expect(slide.actions[.left]?.source == "shift+tab")
+    }
+}
+
+struct HeldModifierTests {
+    @Test func slidesCanHoldModifiers() throws {
+        let configuration = try ConfigurationParser.parse("""
+            [TRACKPAD]
+            three-finger-slide = { left = "shift+tab", right = "tab", hold = "cmd+opt" }
+            """)
+        guard case .slide(let slide) = configuration.binding(
+            for: .threeFingerSlide, device: .trackpad, application: nil, functionKeyDown: false
+        ) else {
+            Issue.record("expected a slide")
+            return
+        }
+        #expect(slide.hold == [.command, .option])
+        #expect(throws: ConfigurationError.self) {
+            try ConfigurationParser.parse("[TRACKPAD]\nthree-finger-slide = { right = \"tab\", hold = \"cmd+x\" }")
+        }
+    }
+
+    @Test func endsASlideOnlyAfterItStepped() {
+        let recognizer = GestureRecognizer(device: .trackpad)
+        struct Slides: GestureBindings {
+            func isBound(_ gesture: Gesture) -> Bool { false }
+            func slide(for gesture: Gesture) -> SlideTarget? { SlideTarget(directions: [.left, .right], step: 5) }
+        }
+        func frame(_ time: Double, _ x: Double?) -> [RecognizedGesture] {
+            let touches = x.map { x in
+                (1...3).map { Touch(id: Int32($0), position: Point(x: x + Double($0) * 15, y: 30), normalized: Point(x: 0.5, y: 0.5)) }
+            } ?? []
+            return recognizer.process(TouchFrame(timestamp: time, touches: touches), bindings: Slides())
+        }
+        _ = frame(0, 10)
+        _ = frame(0.05, 10.5)
+        #expect(!frame(0.1, nil).contains(.slideEnded(.threeFingerSlide)))
+        _ = frame(1, 10)
+        #expect(frame(1.05, 22) == [.slide(.threeFingerSlide, .right), .slide(.threeFingerSlide, .right)])
+        #expect(frame(1.1, nil) == [.slideEnded(.threeFingerSlide)])
     }
 }

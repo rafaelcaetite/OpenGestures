@@ -128,7 +128,7 @@ enum BindingParser {
     }
 
     private static func parseSlideTable(_ table: TOMLTable) throws(BindingError) -> SlideBinding {
-        try rejectUnknownKeys(in: table, allowed: ["preset", "up", "down", "left", "right", "step", "haptic"])
+        try rejectUnknownKeys(in: table, allowed: ["preset", "up", "down", "left", "right", "step", "hold", "haptic"])
         var binding: SlideBinding
         if let name = try string(table, "preset") {
             guard let preset = SlidePreset(rawValue: name) else {
@@ -152,6 +152,16 @@ enum BindingParser {
             }
             binding.step = millimetres
         }
+        if let names = try string(table, "hold") {
+            var hold: Modifiers = []
+            for name in names.split(separator: "+") {
+                guard let modifier = Modifiers.names[name.trimmingCharacters(in: .whitespaces).lowercased()] else {
+                    throw BindingError("hold takes modifier keys such as \"cmd\" or \"cmd+shift\"")
+                }
+                hold.insert(modifier)
+            }
+            binding.hold = hold
+        }
         binding.haptic = try bool(table, "haptic") ?? binding.haptic
         if binding.source.isEmpty || table.keys.contains(where: { Direction(rawValue: $0) != nil }) {
             binding.source = Direction.allCases.compactMap { direction in
@@ -166,7 +176,9 @@ enum BindingParser {
         for (direction, text) in preset.actions {
             actions[direction] = ActionBinding(steps: [try parseStep(text)], source: text)
         }
-        return SlideBinding(actions: actions, step: preset.step, detent: preset.detent, source: preset.rawValue)
+        return SlideBinding(
+            actions: actions, step: preset.step, detent: preset.detent, hold: preset.hold, source: preset.rawValue
+        )
     }
 
     private static func rejectUnknownKeys(in table: TOMLTable, allowed: Set<String>) throws(BindingError) {

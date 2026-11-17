@@ -4,7 +4,23 @@ import IOKit.hidsystem
 
 /// Synthesizes keyboard, media-key and mouse events.
 enum EventPoster {
-    static func post(_ keystroke: Keystroke) {
+    /// Presses or releases modifier keys on their own, as flag changes, which
+    /// is how the system sees a real modifier key. A key combination posted
+    /// while they are down passes them as `holding`.
+    static func setModifiers(_ modifiers: Modifiers, down: Bool) {
+        let source = CGEventSource(stateID: .hidSystemState)
+        var flags = down ? CGEventFlags() : modifiers.flags
+        let pressed = Modifiers.ordered.filter { modifiers.contains($0.0) }
+        for modifier in down ? pressed : pressed.reversed() {
+            if down { flags.insert(modifier.flag) } else { flags.remove(modifier.flag) }
+            let event = CGEvent(keyboardEventSource: source, virtualKey: modifier.keyCode, keyDown: down)
+            event?.type = .flagsChanged
+            event?.flags = flags
+            event?.post(tap: .cghidEventTap)
+        }
+    }
+
+    static func post(_ keystroke: Keystroke, holding held: Modifiers = []) {
         var modifiers = keystroke.modifiers
         let code: UInt16
         switch keystroke.key {
@@ -20,8 +36,9 @@ enum EventPoster {
         }
 
         let source = CGEventSource(stateID: .hidSystemState)
-        let pressed = Modifiers.ordered.filter { modifiers.contains($0.0) }
-        var flags = CGEventFlags()
+        // Modifiers already held stay down and are not pressed again.
+        let pressed = Modifiers.ordered.filter { modifiers.contains($0.0) && !held.contains($0.0) }
+        var flags = held.flags
 
         // Modifiers are pressed as separate key events before the key itself.
         // Some hotkey listeners ignore a key event that merely carries flags.

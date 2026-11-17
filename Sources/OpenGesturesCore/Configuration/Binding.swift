@@ -51,6 +51,9 @@ public struct SlideBinding: Hashable, Sendable {
     /// Steps between two haptic taps. Fine-grained presets tap once per
     /// whole step instead of on every quarter.
     public var detent: Int
+    /// Modifier keys held down from the first step until the fingers lift,
+    /// such as Command for the application switcher.
+    public var hold: Modifiers
     public var haptic: Bool?
     public var source: String
 
@@ -58,12 +61,14 @@ public struct SlideBinding: Hashable, Sendable {
         actions: [Direction: ActionBinding],
         step: Double? = nil,
         detent: Int = 1,
+        hold: Modifiers = [],
         haptic: Bool? = nil,
         source: String
     ) {
         self.actions = actions
         self.step = step
         self.detent = max(1, detent)
+        self.hold = hold
         self.haptic = haptic
         self.source = source
     }
@@ -110,7 +115,7 @@ public enum SlidePreset: String, CaseIterable, Sendable {
         case .undo: [.left: "cmd+z", .right: "cmd+shift+z"]
         case .spaces: [.left: "ctrl+left", .right: "ctrl+right"]
         case .tracks: [.left: "previous-track", .right: "next-track"]
-        case .apps: [.left: "previous-app", .right: "next-app"]
+        case .apps: [.left: "shift+tab", .right: "tab"]
         }
     }
 
@@ -125,8 +130,14 @@ public enum SlidePreset: String, CaseIterable, Sendable {
         case .zoom: 8
         case .undo: 10
         case .tabs: 15
-        case .history, .spaces, .tracks, .apps: 25
+        case .apps: 15
+        case .history, .spaces, .tracks: 25
         }
+    }
+
+    /// Modifiers held for the whole slide.
+    public var hold: Modifiers {
+        self == .apps ? .command : []
     }
 
     /// Quarter-step presets tap the trackpad once per whole step.
@@ -156,7 +167,7 @@ public enum SlidePreset: String, CaseIterable, Sendable {
         case .undo: "Left undoes (⌘Z), right redoes (⌘⇧Z)"
         case .spaces: "Left and right move between desktops"
         case .tracks: "Left and right skip between tracks"
-        case .apps: "Left and right move between open applications"
+        case .apps: "Opens the application switcher (⌘⇥); left and right pick, lifting switches"
         }
     }
 }

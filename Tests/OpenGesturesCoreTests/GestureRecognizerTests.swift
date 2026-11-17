@@ -90,11 +90,11 @@ struct GestureRecognizerTests {
         let target = SlideTarget(directions: [.up, .down], step: 5)
         let harness = Harness(bindings: StubBindings(slides: [.fourFingerSlide: target]))
         harness.move(fingers: 4, from: Point(x: 20, y: 20), by: Point(x: 0, y: 23))
-        #expect(harness.output == Array(repeating: .slide(.fourFingerSlide, .up), count: 4))
+        #expect(harness.output == Array(repeating: .slide(.fourFingerSlide, .up), count: 4) + [.slideEnded(.fourFingerSlide)])
 
         harness.output.removeAll()
         harness.move(fingers: 4, from: Point(x: 20, y: 60), by: Point(x: 1, y: -11), at: 1)
-        #expect(harness.output == Array(repeating: .slide(.fourFingerSlide, .down), count: 2))
+        #expect(harness.output == Array(repeating: .slide(.fourFingerSlide, .down), count: 2) + [.slideEnded(.fourFingerSlide)])
     }
 
     @Test func slidesRespondWithinAMillimetre() {
@@ -185,7 +185,7 @@ struct GestureRecognizerTests {
         harness.frame(0.2, [(1, 20, 20), (2, 50, 20)])
         harness.frame(0.3, [(1, 20, 20), (2, 50, 31)])
         harness.frame(0.4, [])
-        #expect(harness.output == [.slide(.holdSlide, .up), .slide(.holdSlide, .up)])
+        #expect(harness.output == [.slide(.holdSlide, .up), .slide(.holdSlide, .up), .slideEnded(.holdSlide)])
     }
 
     @Test(arguments: [(Hand.right, Gesture.indexToPinky), (Hand.left, Gesture.pinkyToIndex)])

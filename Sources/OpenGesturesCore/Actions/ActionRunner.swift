@@ -16,18 +16,26 @@ public final class ActionRunner: @unchecked Sendable {
 
     public init() {}
 
-    public func perform(_ binding: ActionBinding, context: Context) {
+    /// Runs `binding`. Keystrokes are sent with `holding` already down.
+    public func perform(_ binding: ActionBinding, context: Context, holding: Modifiers = []) {
         queue.async {
             for step in binding.steps {
-                Self.run(step, context: context)
+                Self.run(step, context: context, holding: holding)
             }
         }
     }
 
-    private static func run(_ step: ActionStep, context: Context) {
+    /// Presses or releases modifier keys, in order with the actions around it.
+    public func setModifiers(_ modifiers: Modifiers, down: Bool) {
+        queue.async {
+            EventPoster.setModifiers(modifiers, down: down)
+        }
+    }
+
+    private static func run(_ step: ActionStep, context: Context, holding: Modifiers) {
         switch step {
         case .keystroke(let keystroke):
-            EventPoster.post(keystroke)
+            EventPoster.post(keystroke, holding: holding)
         case .builtIn(let action):
             perform(action)
         case .mouseButton(let number):

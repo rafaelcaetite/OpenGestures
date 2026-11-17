@@ -26,6 +26,8 @@ public struct SlideTarget: Equatable, Sendable {
 public enum RecognizedGesture: Equatable, Sendable {
     case gesture(Gesture)
     case slide(Gesture, Direction)
+    /// The fingers of a slide that made at least one step have lifted.
+    case slideEnded(Gesture)
 }
 
 public struct RecognizerSettings: Equatable, Sendable {
@@ -172,6 +174,9 @@ public final class GestureRecognizer {
         maxFingers = max(maxFingers, tracks.count)
 
         if tracks.isEmpty {
+            if case .slide(let gesture, _, _, _) = motion?.phase {
+                output.append(.slideEnded(gesture))
+            }
             if !lifts.isEmpty {
                 output += finishSession(at: now, bindings: bindings)
             }

@@ -127,6 +127,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func stopInput() {
         manager.stop()
+        engine.releaseHeldModifiers()
         clickInterceptor.stop()
         scrollInterceptor.stop()
     }
@@ -137,6 +138,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let item = DispatchWorkItem { [weak self] in
             MainActor.assumeIsolated {
                 guard let self, self.isEnabled else { return }
+                self.engine.releaseHeldModifiers()
                 self.manager.restart()
             }
         }

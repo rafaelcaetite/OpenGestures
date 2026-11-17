@@ -43,6 +43,8 @@ public final class GestureEngine: @unchecked Sendable {
     private var scrollClaimed = false
     /// Devices with fingers on them, by identifier.
     private var touchingDevices: Set<UInt64> = []
+    /// Modifiers pressed by a running slide, released when it ends.
+    private var heldModifiers: Modifiers = []
 
     private let runner: ActionRunner
     private let levels = LevelAdjuster()
@@ -209,9 +211,15 @@ public final class GestureEngine: @unchecked Sendable {
         let configuration = lock.withLock { self.configuration }
 
         for output in outputs {
-            let (gesture, direction): (Gesture, Direction?) = switch output {
-            case .gesture(let gesture): (gesture, nil)
-            case .slide(let gesture, let direction): (gesture, direction)
+            let (gesture, direction): (Gesture, Direction?)
+            switch output {
+            case .gesture(let value):
+                (gesture, direction) = (value, nil)
+            case .slide(let value, let way):
+                (gesture, direction) = (value, way)
+            case .slideEnded:
+                releaseHeldModifiers()
+                continue
             }
             let binding = configuration.binding(
                 for: gesture, device: device.kind, application: application, functionKeyDown: functionKeyDown
@@ -236,7 +244,15 @@ public final class GestureEngine: @unchecked Sendable {
                    let level = LevelAdjuster.Level(builtIn) {
                     levels.adjust(level, up: builtIn == .volumeUpFine || builtIn == .brightnessUpFine)
                 } else {
-                    runner.perform(action, context: context)
+                    let press = lock.withLock {
+                        let missing = slide.hold.subtracting(heldModifiers)
+                        heldModifiers.formUnion(missing)
+                        return missing
+                    }
+                    if !press.isEmpty {
+                        runner.setModifiers(press, down: true)
+                    }
+                    runner.perform(action, context: context, holding: slide.hold)
                 }
                 slideStepsSinceHaptic += 1
                 if slideStepsSinceHaptic >= slide.detent {
@@ -246,6 +262,19 @@ public final class GestureEngine: @unchecked Sendable {
             default:
                 continue
             }
+        }
+    }
+
+    /// Lets go of modifiers a slide was holding. Also called when input
+    /// stops, so a slide cut short by sleep or a disconnect never leaves
+    /// Command stuck down.
+    public func releaseHeldModifiers() {
+        let held: Modifiers = lock.withLock {
+            defer { heldModifiers = [] }
+            return heldModifiers
+        }
+        if !held.isEmpty {
+            runner.setModifiers(held, down: false)
         }
     }
 
