@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test
+        run: make test
+
+      - name: Build
+        run: make zip ARCHS="arm64 x86_64"
+
+      - name: Extract release notes
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v version="$version" '
+            $0 ~ "^## \\[" version "\\]" { found = 1; next }
+            found && /^## \[/ { exit }
+            found && /^\[/ { exit }
+            found { print }
+          ' CHANGELOG.md > notes.md
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat >> notes.md <<'NOTES'
+
+          ### Installing the prebuilt app
+
+          The app is ad-hoc signed, not notarized. After unzipping, move it to
+          Applications and clear the quarantine flag before the first launch:
+
+              xattr -dr com.apple.quarantine OpenGestures.app
+
+          Building from source with `make install` avoids this step.
+          NOTES
+          gh release create "$GITHUB_REF_NAME" .build/OpenGestures-*.zip \
+            --title "OpenGestures ${GITHUB_REF_NAME#v}" --notes-file notes.md

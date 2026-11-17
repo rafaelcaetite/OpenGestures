@@ -1,0 +1,47 @@
+# A configuration that exercises most features. Copy what you need into
+# ~/.config/opengestures/config.toml.
+
+[GENERAL]
+haptic-feedback = true
+dominant-hand = "right"
+slide-step = 5
+
+[TRACKPAD]
+# Continuous
+four-finger-slide = "volume"                    # Turn off four-finger vertical swipes in System Settings
+fn+four-finger-slide = "brightness"
+hold-slide = { up = "cmd+=", down = "cmd+-", step = 6 }   # Rest a finger, slide another to zoom
+
+# Taps
+three-finger-double-tap = "play-pause"
+four-finger-tap = "mission-control"
+five-finger-tap = { action = "cmd+ctrl+q", say = "Locking" }
+
+# Hold and tap
+hold-left-tap-right = "next-tab"
+hold-right-tap-left = "previous-tab"
+hold-two-tap-between = "reopen-tab"
+
+# Brushes
+index-to-pinky = "cmd+shift+4"                  # Screenshot of a selection
+pinky-to-index = "app:Notes"
+
+# Clicks
+three-finger-click = "middle-click"
+top-left-corner-click = "launchpad"
+bottom-right-corner-click = "show-desktop"
+right-edge-top-third-click = "url:https://duckduckgo.com/?q={{clipboard|trim|urlencode}}"
+
+[TRACKPAD."Safari, Google Chrome, Arc"]
+three-finger-slide = "tabs"
+hold-left-tap-right = "cmd+shift+]"
+
+[TRACKPAD."Finder"]
+four-finger-tap = "menu:File > New Finder Window"
+
+[TRACKPAD."!Terminal, iTerm2"]
+five-finger-tap = ["cmd+a", "cmd+c", "wait:100", "app:Notes", "wait:400", "cmd+v"]
+
+[MOUSE]
+two-finger-tap = "middle-click"
+two-finger-slide = "volume"

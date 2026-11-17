@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        run: swift --version
+
+      - name: Test
+        run: make test
+
+      - name: Build universal app
+        run: make app ARCHS="arm64 x86_64"
+
+      - name: Validate example configuration
+        run: .build/OpenGestures.app/Contents/MacOS/OpenGestures check examples/config.toml
